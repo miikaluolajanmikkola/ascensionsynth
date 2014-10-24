@@ -23,7 +23,7 @@ var seqStepLengthDefault = 8;
 
 var  PI=Math.PI,
      pi=Math.PI,
-     phi = 1.61803398874989484820458683436563 //32digits
+     phi = 1.61803398874989484820458683436563
     abs=Math.abs,
     sin=Math.sin,
    asin=Math.asin,
@@ -168,7 +168,8 @@ function playTone(freq) {
 
 /* * * ** *** *****  BEGIN UI  ***** *** ** * * */
 /**
- * Create Sacred Grid to HTML
+ * Grid layout to HTML
+ * 
  * @param return String html
  */
 function createSacredGridLayout() {
@@ -229,10 +230,7 @@ function createSacredGridLayout() {
 
 
 /* * ** *** *****  Control functions, is there a better way to do these?  ***** *** ** * */
-/**
- * Write to #waveSelector
- * @type {String}
- */
+
 function prepareWaveSelector() {
 
 	var active = '';
@@ -249,9 +247,6 @@ function prepareWaveSelector() {
 	return markup;
 }
 
-/**
- * Write to #keyboardSelector
- */
 function prepareKbSelector() {
 		
 	var selected = '';
@@ -271,9 +266,6 @@ function prepareKbSelector() {
 	return markup;
 }
 
-/**
- * Write to #sequenceSelector
- */
 function prepareSeqSelector() {
 	
 	var selected = '';
@@ -375,9 +367,6 @@ $(document).ready(function () {
 		}
 	});
 
-	/**
-	 * Wave Button
-	 */
 	$('#waveSelector .ctrl_button').on('click', function() {
 
 		createWaveGrid(this.id);
@@ -457,6 +446,8 @@ $(document).ready(function () {
 		}
 
 	}, interval_length);
+	
+
 });
 
 

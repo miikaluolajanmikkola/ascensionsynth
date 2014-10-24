@@ -99,16 +99,16 @@ ul li { list-style-type: none; }
 .clear { clear: both; }
 
 #solfeggio_main {
-	width: 1000px;
+	width: 1002px;
 	margin: 0; padding: 0;
-	/*height: 1000px;*/
-	
+
+	opacity: 0.9;
 	/*
 	background-image: url('../images/treeoflife.png');
 	background-repeat: no-repeat;
 	background-position: 65px -442px;
 	*/
-	opacity: 0.9;
+	
 	/*
 	background-image: url('../images/head.png');
 	background-repeat: no-repeat;
@@ -127,11 +127,11 @@ ul li { list-style-type: none; }
 	
 	/*width: 816px;  sq(64^2)x2)*9 */
 	/*width: 580px; /* 64*9 */
-	/*background-image: url('../images/geokone_export.png');*/
-	background-image: url('../images/ds2.png');
+	/*background-image: url('../images/geokone_export.png');
+	background-image: url('../images/ds2.png');*/
 	background-position: -28px -28px;
 	opacity: 1;
-
+	float:left;
 	width: 522px;
 	height: 522px;
 
@@ -158,7 +158,7 @@ ul li { list-style-type: none; }
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 	*/
-	opacity: 0.9;
+	opacity: 0.8;
 
 	-webkit-border-radius:5px;
 	-moz-border-radius:5px;
@@ -235,8 +235,8 @@ ul li { list-style-type: none; }
 	float: right;
 
 	text-align: right;
-	position: relative;
-	top: -682px; right: 15px;
+	/*position: relative;
+	top: -682px; right: 15px;*/
 	background-color: #010122;
 	padding: 15px;
 
@@ -320,7 +320,11 @@ box-shadow: 0 0 1px rgba(0,0,0, .75);
 	opacity: 0.8;
 }
 
-
+#copyright {
+	color: #818181;
+	float: right;
+	margin: 50px 10px;
+}
 
 
 
