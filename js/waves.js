@@ -17,7 +17,6 @@ wfColl.add('Violin', 'violin');
 wfColl.add('Clarinet', 'clarinet');
 wfColl.add('Laser1', 'laserstatic1');
 wfColl.add('Laser2', 'laserecho');
-wfColl.add('Chord', 'achord');
 wfColl.add('Whitenoise', 'whitenoise');
 wfColl.add('Wsin', 'wikisin');
 /*
@@ -107,13 +106,12 @@ function wikitri(f, samples_length) {
 }
 */
 //var attackEnd = 4800; // 5ms in 96000kHz
-  //var attackEnd = 9600; // 10ms in 96000kHz
-  var attackEnd = 19200 / 96000; // 20ms in 96000kHz
-  var releaseStart = 96000 - 9600;
-  var targetRatio = 0.5;
-var arRate = function(t, targetRatio) {
+//var attackEnd = 9600; // 10ms in 96000kHz
+var attackEnd = 19200 / 96000; // 20ms in 96000kHz
+var releaseStart = 96000 - 9600;
+var targetRatio = 0.5;
 
-  
+var arRate = function(t, targetRatio) {
 
   return exp(-log((1 + targetRatio) / targetRatio) / t);
 }
@@ -148,8 +146,8 @@ var sinewave = function sinewave(f, samples_length) {
     var t = i/samples_length; // time from 0 to 1
     samples[i] = sin( f*2*PI*t ); // wave equation (between -1,+1)  
     
-    if (i < attackEnd) samples[i] ^= arRate(t, targetRatio);
-    if (i > releaseStart) samples[i] = arRate(t, targetRatio);
+    if (i < attackEnd) samples[i] += arRate(t, targetRatio);
+    if (i > releaseStart) samples[i] += arRate(t, targetRatio);
     
     if (samples[i] > 1) samples[i] = 1;
     else if (samples[i] < -1) samples[i] = -1;
@@ -167,12 +165,10 @@ var bass = function bass(f, samples_length) {
     var t = i/samples_length;
     samples[i] = pow(sin( 1.26*f/2 * 2*PI*t ),15)*pow((1-t),3) * pow(sin( 1.26*f/10 * 2*PI*t ),3)*10;
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
-    if (convert255 == true)
+    if (convert255 == true) 
       samples[i] = 128 + Math.round( 127 * samples[i]);
   }
   return samples;
@@ -195,13 +191,10 @@ var violin = function violin(f, samples_length) {
     samples[i] *= (1-0.5*sin(2*PI*6*t)); // Add a low frequency amplitude modulation
     samples[i] *= (1-exp(-t*3));
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
-    if (convert255 == true)
-      samples[i] = 128 + Math.round( 127 * samples[i]);
+    if (convert255 == true) samples[i] = 128 + Math.round( 127 * samples[i]);
   }
   return samples;
 }
@@ -216,10 +209,8 @@ var waterdrop = function waterdrop(f1, samples_length) {
     samples[i] = 1*cos(2*PI*f1*(t) + 20*cos(2*PI*f2*(t)) );
     samples[i] *= exp(-t*15);
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
     if (convert255 == true)
       samples[i] = 128 + Math.round( 127 * samples[i]);
@@ -236,10 +227,8 @@ var bell1 = function bell1(f, samples_length) {
     samples[i] = cos(w + 8*sin(w*7/5) * exp(-t*4) );
     samples[i] *= exp(-t*3);
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
     if (convert255 == true)
       samples[i] = 128 + Math.round( 127 * samples[i]);
@@ -256,12 +245,10 @@ var bell2 = function bell2(f, samples_length) {
     samples[i] = cos(w + 8*sin(w*2) * exp(-t*4) );
     samples[i] *= exp(-t*3);
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
-    if (convert255 == true)
+    if (convert255 == true) 
       samples[i] = 128 + Math.round( 127 * samples[i]);
   }
   return samples;
@@ -278,10 +265,8 @@ var clarinet = function clarinet(f, samples_length) {
     samples[i] *= exp(t/1.5);
     samples[i] *= exp(-t*1.5);
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
     if (convert255 == true)
       samples[i] = 128 + Math.round( 127 * samples[i]);
@@ -298,46 +283,8 @@ var laserecho = function laserecho(f1, samples_length) {
     samples[i] = cos(2*PI*f1*t + 1500*cos(2*PI*f2*t) );
     samples[i] *= exp(-t*4);
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
-
-    if (convert255 == true)
-      samples[i] = 128 + Math.round( 127 * samples[i]);
-  }
-  return samples;
-}
-
-var whitenoise = function whitenoise(f, samples_length) {
-
-  var samples = [];
-  for (var i = 0; i < samples_length; i++) {
-    samples[i] = random()*2-1;
-
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
-
-    if (convert255 == true)
-      samples[i] = 128 + Math.round( 127 * samples[i]);
-  }
-  return samples;
-}
-
-var achord = function achord(fuu, samples_length) {
-
-  var frequency = [392, 659.26, 783.99, 1046.5]; // "C4+E4+G4+C5" notes
-  var samples = [];
-  for (var i = 0; i < samples_length ; i++) {
-    var t = i/samples_length;
-    samples[i] = (sin( frequency[0] * 2*PI*t ) + sin( frequency[1] * 2*PI*t )+ sin( frequency[2] * 2*PI*t ) + + sin( frequency[3] * 2*PI*t ))/4 ;
-  
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
     if (convert255 == true)
       samples[i] = 128 + Math.round( 127 * samples[i]);
@@ -352,10 +299,8 @@ var laserstatic1 = function laserstatic1(f, samples_length) {
     var t = i/samples_length;
     samples[i] = sin(pow(5*2*PI*(1-t),3.6) );
 
-    if (samples[i] > 1)
-      samples[i] = 1;
-    else if (samples[i] < -1)
-      samples[i] = -1;
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
     if (convert255 == true)
       samples[i] = 128 + Math.round( 127 * samples[i]);
@@ -363,19 +308,19 @@ var laserstatic1 = function laserstatic1(f, samples_length) {
   return samples;
 }
 
+var whitenoise = function whitenoise(f, samples_length) {
 
+  var samples = [];
+  for (var i = 0; i < samples_length; i++) {
+    samples[i] = random()*2-1;
 
-/**
- * @param  {array} data [samples]
- * @return {array1}      [Conversion to 255]
- */
-/*
-function convert255(data) {
+    if (samples[i] > 1) samples[i] = 1;
+    else if (samples[i] < -1) samples[i] = -1;
 
-  var data_0_255=[];
-  for (i = 0; i < data.length; i++) {
-    data_0_255[i] = 128 + Math.round( 127 * data[i]);
+    if (convert255 == true) samples[i] = 128 + Math.round( 127 * samples[i]);
   }
-  return data_0_255;
+  return samples;
 }
-*/
+
+
+

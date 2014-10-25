@@ -289,6 +289,42 @@ function prepareSeqSelector() {
 	return markup;
 }
 
+function bufferWaveStream(f) {
+	for (var channel = 0; channel < channels; channel++) {
+            // This gives us the actual ArrayBuffer that contains the data
+            var nowBuffering = myArrayBuffer.getChannelData(channel);
+            for (var i = 0; i < frameCount; i++) {
+                //nowBuffering[i] = bufferRuntimeCallback('fmod');
+                nowBuffering[i] = sin( f*2*PI*i );
+            }
+        }
+        // Get an AudioBufferSourceNode.
+        // This is the AudioNode to use when we want to play an AudioBuffer
+        var source = audioCtx.createBufferSource();
+        // set the buffer in the AudioBufferSourceNode
+        source.buffer = myArrayBuffer;
+        // connect the AudioBufferSourceNode to the
+        // destination so we can hear the sound
+        source.connect(audioCtx.destination);
+
+        /* TODO: Hack gain properties from this progress and insert here upon
+        var gainNode = audioCtx.createGain();
+        gainNode.connect(audioCtx.destination);
+        gainNode.gain.value = 0.5 * this.mVolume/100.0;
+
+        var node = audioCtx.createBufferSource();
+        node.buffer = this.mBuffer[id];
+        //node.gain.value = 0.5 * this.mVolume/100.0;
+        //node.connect(audioCtx.destination);
+        node.connect(gainNode);
+        //node.noteOn(0);
+        node.state = node.noteOn;
+        node.start(0);
+        */
+        // start the source playing
+        source.start();
+}
+
 /**
  * Let's run this stuff
  */
@@ -308,7 +344,7 @@ $(document).ready(function () {
 	currentKeyboard = $('#keyboardSelector option:selected').val();
 
 	//Not working because of js written UI
-	$('#seq_start_stop').trigger('click');
+	//$('#seq_start_stop').trigger('click');
 	
 	$('.freqButton').on('click', function() {
 		
@@ -317,6 +353,8 @@ $(document).ready(function () {
 		var ptv = $(pluckedElem).text(); // Plucked Text Value
 
 		playTone(ptv);
+
+		//bufferWaveStream(ptv);
 
 		var rgb = ptv;
 		
@@ -446,7 +484,7 @@ $(document).ready(function () {
 		}
 
 	}, interval_length);
-	
+
 
 });
 
