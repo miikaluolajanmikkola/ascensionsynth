@@ -4,16 +4,22 @@
  * Version 0.5
  * 
  * Inspiration from:
- * 
+ *
  * Miika Kuisma / miikakuisma.com
  * Sakari Lehtonen / geokone.net
  * Tim Wessman / lossidesign.fi
- *
+ * Karlheinz Stockhausen
+ * Nassim Haramein
+ * Mooji
+ * 
  * Written by Miika Luolajan-Mikkola, 2014
+ * 
  */
 
-// Preloading audio generates audio to grid, which will make the script slightly unresponsive atm
-var preloadAudio = false;
+//var AC = new ( window.AudioContext || window.webkitAudioContext)();
+//var scriptNodes = {};
+
+//var preloadAudio = false;
 var gridMode = 'grid'; // 'solfeggios' || 'grid' = for the sake of development convenience
 
 var pluckedMax = 8;
@@ -21,26 +27,26 @@ var interval_length = 1000;
 
 var seqStepLengthDefault = 8;
 
-var  PI=Math.PI,
-     pi=Math.PI,
-     phi = 1.61803398874989484820458683436563
-    abs=Math.abs,
-    sin=Math.sin,
-   asin=Math.asin,
-    cos=Math.cos,
-    tan=Math.tan,
-   atan=Math.atan,
-  atan2=Math.atan2,
-  floor=Math.floor,
-   ceil=Math.ceil,
-    max=Math.max,
-    min=Math.min,
- random=Math.random,
-  round=Math.round,
-   sqrt=Math.sqrt,
-    exp=Math.exp,
-    log=Math.log,
-    pow=Math.pow;
+var  PI = Math.PI,
+     pi = Math.PI,
+    phi = 1.61803398874989484820458683436563
+    abs = Math.abs,
+    sin = Math.sin,
+   asin = Math.asin,
+    cos = Math.cos,
+    tan = Math.tan,
+   atan = Math.atan,
+  atan2 = Math.atan2,
+  floor = Math.floor,
+   ceil = Math.ceil,
+    max = Math.max,
+    min = Math.min,
+ random = Math.random,
+  round = Math.round,
+   sqrt = Math.sqrt,
+    exp = Math.exp,
+    log = Math.log,
+    pow = Math.pow;
 
 // Vertical structures of overtone scales
 // It is important to keep the initial zero for dg1, otherwise 174 won't be played by algorithms.
@@ -56,11 +62,10 @@ var oddFrequencies = [7.83, 63.05, 136.1];
 var solfeggios = dg1.concat(dg2, dg3, dg4, oddFrequencies);
 
 var grid = []; // Store all freqs here first
-var rowLength;
+var rowLength = 9;
 var waveCanvas = new Object(); // Contains wave data (floats or 255) assigned to freq cells { waveCanvas[freq] = samples }
-var audioCanvas = new Object(); // Contains generated audio waves { audioCanvas[freq] = audio.play }
 
-var sampleRate = 96000;
+var sampleRate = 44100;
 var samples_length = sampleRate; // divide by 2 ???
 var samples = []; //new Float32Array(samples_length);
 
@@ -68,7 +73,6 @@ var base = 9; //When subtraction of Z returns a negative number
 var zi = 9; //Z index
 var freq;
 var holyclass;
-//var html; // Sacred Grid View
 
 var plucked = [];
 var pluckedColl = new Collection(); //Size grows until pluckedMax reached
@@ -76,6 +80,7 @@ var learned = new Collection();
 
 var waveCollection = getWaveCollection(); // new Collection(); // {Collection}.count, .headers, .list, .item
 var keyboardCollection = getKeyboardCollection(); // new Collection();
+var temperingCollection = getTemperingCollection();
 
 //var keyboardMode;
 var sequenceRunning = false;
@@ -107,9 +112,8 @@ function createWaveGrid(waveform) {
 				var fn = window[waveform];
 
 				if (typeof fn === "function") {
+
 					waveCanvas[solfeggios[i]] = fn.apply(null, fnparams);
-					if (preloadAudio === true)
-						createWaveTone( solfeggios[i], waveCanvas[solfeggios[i]] );
 				}
 			}
 		break;
@@ -121,49 +125,34 @@ function createWaveGrid(waveform) {
 				var fn = window[waveform];
 
 				if (typeof fn === "function") {
+
 					waveCanvas[grid[i]] = fn.apply(null, fnparams);
-					if (preloadAudio === true)
-						createWaveTone( grid[i], waveCanvas[grid[i]] );
 				}
 			}
 		break;
 	}
-	console.log(waveCanvas);
+	//console.log(waveCanvas);
 }
+
 
 /**
- * Generate Wave
+ *  Calls to Web Audio API ScriptProcessorNode
  */
-function createAudibleTone(freq, samples) {
-
-	var wave = new RIFFWAVE();
-	wave.header.sampleRate = sampleRate;
-	wave.header.numChannels = 1;
-
-	var audio = new Audio();
-	if (freq == 7.83)
-		audio.volume = 0.2;
-	else
-		audio.volume = 0.1
-	//console.log(audio);
-
-	wave.Make(waveCanvas[freq]);
-	audio.src = wave.dataURI;
-	
-	if (preloadAudio === true)
-		audioCanvas[freq] = audio;
-	else
-		audio.play();
-}
-
 function playTone(freq) {
-	
-	if (preloadAudio === true)
-		audioCanvas[freq].play();
-	else
-		createAudibleTone(freq, waveCanvas[freq]);
-}
 
+	// ScriptProcessorNode plays Oscillator as default wave until grid waves are created
+	if ( waveCanvas[freq] ) {
+		//Now we have samples to use SPN with our JS methods in waves.js
+		bufferWaveStream( waveCanvas[freq] );
+	}
+	else {
+		// THIS is the cooler method with added time functions:
+		// send waveCanvas[freq] (float array) as additional parameter?
+		synthEngineStream( 0.001, freq, output = null); 
+	}
+	return;
+
+}
 
 
 /* * * ** *** *****  BEGIN UI  ***** *** ** * * */
@@ -180,7 +169,7 @@ function createSacredGridLayout() {
 	//var rgbz;
 	var ex = 0; //RGB color emphasis value
 
-	html = '';
+	var html = '';
 	for ( y = 9; y > 0; y-- ) {
 		for ( x = 1; x <= 9; x++ ) {				
 			z = zi - x;
@@ -231,22 +220,6 @@ function createSacredGridLayout() {
 
 /* * ** *** *****  Control functions, is there a better way to do these?  ***** *** ** * */
 
-function prepareWaveSelector() {
-
-	var active = '';
-	var markup = '';
-	var headers = waveCollection.list();
-	for (i = 0; i < headers.length; i++) {
-		if (headers[i] == 'Sinewave')
-			active = ''; //was 'active'
-		else
-			active = '';
-		markup += '<input type="button" class="ctrl_button '+ active +'" id="'+ waveCollection.item(headers[i]) +'" value="'+ headers[i] +'" /><br />';
-	}
-
-	return markup;
-}
-
 function prepareKbSelector() {
 		
 	var selected = '';
@@ -262,6 +235,41 @@ function prepareKbSelector() {
 		markup += '<option '+ selected +' value="'+ kbList[i] +'">'+ kbList[i] +'</option>';
 	}
 	markup += '</select>';
+
+	return markup;
+}
+
+function prepareTemperingSelector() {
+
+	var selected = '';
+	var markup = '<label for="temperingSelector">Tempering</label>\
+				<select id="temperingSelector">';
+	var tprList = temperingCollection.list();
+
+	for (i = 0; i < tprList.length; i++) {
+	    if (tprList[i] == 'Geometric Default')
+	    	selected = 'selected';
+	    else
+	    	selected = '';
+		markup += '<option '+ selected +' value="'+ tprList[i] +'">'+ tprList[i] +'</option>';
+	}
+	markup += '</select>';
+
+	return markup;
+}
+
+function prepareWaveSelector() {
+
+	var active = '';
+	var markup = '';
+	var headers = waveCollection.list();
+	for (i = 0; i < headers.length; i++) {
+		if (headers[i] == 'Sinewave')
+			active = ''; //was 'active'
+		else
+			active = '';
+		markup += '<input type="button" class="ctrl_button '+ active +'" id="'+ waveCollection.item(headers[i]) +'" value="'+ headers[i] +'" /><br />';
+	}
 
 	return markup;
 }
@@ -284,46 +292,12 @@ function prepareSeqSelector() {
 				<input type="text" id="interval_length" value="1000" />\
 				<br />\
 				<label for="samples_length">Time </label>\
-				<input type="text" id="samples_length" value="96000" />';
+				<input type="text" id="samples_length" value="44100" />';
 
 	return markup;
 }
 
-function bufferWaveStream(f) {
-	for (var channel = 0; channel < channels; channel++) {
-            // This gives us the actual ArrayBuffer that contains the data
-            var nowBuffering = myArrayBuffer.getChannelData(channel);
-            for (var i = 0; i < frameCount; i++) {
-                //nowBuffering[i] = bufferRuntimeCallback('fmod');
-                nowBuffering[i] = sin( f*2*PI*i );
-            }
-        }
-        // Get an AudioBufferSourceNode.
-        // This is the AudioNode to use when we want to play an AudioBuffer
-        var source = audioCtx.createBufferSource();
-        // set the buffer in the AudioBufferSourceNode
-        source.buffer = myArrayBuffer;
-        // connect the AudioBufferSourceNode to the
-        // destination so we can hear the sound
-        source.connect(audioCtx.destination);
 
-        /* TODO: Hack gain properties from this progress and insert here upon
-        var gainNode = audioCtx.createGain();
-        gainNode.connect(audioCtx.destination);
-        gainNode.gain.value = 0.5 * this.mVolume/100.0;
-
-        var node = audioCtx.createBufferSource();
-        node.buffer = this.mBuffer[id];
-        //node.gain.value = 0.5 * this.mVolume/100.0;
-        //node.connect(audioCtx.destination);
-        node.connect(gainNode);
-        //node.noteOn(0);
-        node.state = node.noteOn;
-        node.start(0);
-        */
-        // start the source playing
-        source.start();
-}
 
 /**
  * Let's run this stuff
@@ -331,20 +305,19 @@ function bufferWaveStream(f) {
 $(document).ready(function () {
 	
 	$('#grid').append( createSacredGridLayout() );
-	$('#waveSelector').append( prepareWaveSelector() );
 	$('#kbSelector').append( prepareKbSelector() );
-	setTimeout(function() { $('#seqSelector').append( prepareSeqSelector() ); }, 50 );
-	//setTimeout(function() { audio.play(); }, 10);
+	$('#temperingSelector').append( prepareTemperingSelector() );
+	$('#waveSelector').append( prepareWaveSelector() );
+	$('#seqSelector').append( prepareSeqSelector() );
 	$('.plucked').hide();
-	createWaveGrid('sinewave');
+	
+	//createWaveGrid('sinewave');
 
-	//currentSequences = 
+	//currentSequences
 	//Must be array to handle multiple seqs at once. 
-	//In the future add wave as parameter for each sequence :)
 	currentKeyboard = $('#keyboardSelector option:selected').val();
 
-	//Not working because of js written UI
-	//$('#seq_start_stop').trigger('click');
+	$('#seq_start_stop').trigger('click');
 	
 	$('.freqButton').on('click', function() {
 		
@@ -354,8 +327,7 @@ $(document).ready(function () {
 
 		playTone(ptv);
 
-		//bufferWaveStream(ptv);
-
+		plucked.push(this);
 		var rgb = ptv;
 		
 		$(pluckedElem).show().css('opacity', opa);
@@ -366,6 +338,8 @@ $(document).ready(function () {
 			var felem = $(plucked[plucked.length-i]).find('.plucked');
 			if ($(felem).text() != ptv)
 				$(felem).animate({'opacity' : opa-i/30}, 1);
+			else
+				$(felem).css('opacity', opa);
 			rgb[0] +=  $(felem).text()[0];
 			rgb[1] +=  $(felem).text()[1];
 			rgb[2] +=  $(felem).text()[2];
@@ -379,7 +353,7 @@ $(document).ready(function () {
 			plucked.shift();
 			//console.log(plucked);
 		}
-		plucked.push(this);
+		
 
 		//console.log(rgb);
 		//var colorSum = 
@@ -393,10 +367,10 @@ $(document).ready(function () {
 	 * 
 	 * @todo: Debug keyboard event validation
 	 */
-	$(document).on('keypress', function(event) {
+	$(document).on('keydown', function(event) {
 
 		if (!event) event = window.event;
-		console.log(event.which);
+		//console.log(event.which);
 		//console.log(keyboardCollection.item(currentKeyboard)[event.key]);
 
 		if (keyboardCollection.item(currentKeyboard)[event.key] != -1) {
@@ -409,10 +383,7 @@ $(document).ready(function () {
 
 		createWaveGrid(this.id);
 
-		if ( $(this).hasClass('active') )
-			$(this).removeClass('active');
-		else
-			$(this).addClass('active').siblings().removeClass('active');
+		$(this).addClass('active').siblings().removeClass('active');
 	});
 
 	$('#seq_start_stop').on('click', function() {
@@ -443,8 +414,9 @@ $(document).ready(function () {
 	});
 
 	$('#lumisonos').on('click', function() {
-
-		for (var i = 0; i < plucked.length; i++) {
+		
+		var pl = plucked.length + 1;
+		for (var i = 1; i <= pl; i++) {
 			$(plucked[i]).trigger('click');
 		}
 	});
@@ -452,6 +424,7 @@ $(document).ready(function () {
 	/**
 	 * Begin algorithmical play
 	 */
+	
 	var run = setInterval(function() {
 
 		if (sequenceRunning == true) {
@@ -484,7 +457,7 @@ $(document).ready(function () {
 		}
 
 	}, interval_length);
-
+	
 
 });
 
