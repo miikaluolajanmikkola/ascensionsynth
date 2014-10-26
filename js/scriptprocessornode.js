@@ -3,7 +3,7 @@
 var AC = new ( window.AudioContext || window.webkitAudioContext)();
 var scriptNodes = {};
 
-function chime_jsosc(t, freq, output, samples) {
+function synthOsc(t, freq, output, samples) {
 
     freq = freq || 528.0;
     t = Math.max(t || 0.0, AC.currentTime);
@@ -25,7 +25,7 @@ function chime_jsosc(t, freq, output, samples) {
             var i, out;
             out = event.outputBuffer.getChannelData(0);
             for (i = fromSamp; i < toSamp; ++i, phi += dphi[i]) {
-                out[i] = Math.sin(phi);
+                //out[i] = Math.sin(phi);
             }
         };
     }()));
@@ -43,7 +43,7 @@ function synthEngineStream(t, freq, output, samples) {
     osc.frequency.value = freq;
 
     var gain = scriptWithStartStopTime(osc, output, t, stopTime, (function () {
-        var amplitude = 0.25;
+        var amplitude = 0.1;
         var decay = Math.exp(- 1.0 / (2.0 * AC.sampleRate));
         return function (event, fromSamp, toSamp) {
             var i, inp, out;
@@ -79,7 +79,7 @@ function scriptWithStartStopTime(input, output, startTime, stopTime, handler) {
     console.assert(stopTime >= startTime);
 
     var kBufferLength = 512; // samples
-    var prepareAheadTime = 0.01; // seconds
+    var prepareAheadTime = 0.001; // seconds
 
     var startTime_samples = Math.floor(AC.sampleRate * startTime);
     var stopTime_samples = Math.ceil(AC.sampleRate * stopTime);
@@ -113,7 +113,7 @@ function scriptWithStartStopTime(input, output, startTime, stopTime, handler) {
     }
 
     var dt = startTime - AC.currentTime;
-    if (dt < 0.001 + prepareAheadTime) {
+    if (dt < 0.01 + prepareAheadTime) {
         var node = keep(AC.createScriptProcessor(kBufferLength, 1, 1));
         node.onaudioprocess = onaudioprocess;
 
