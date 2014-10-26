@@ -7,11 +7,12 @@
 	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/ascensionsynth.css" />
 	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="js/riffwave.js"></script>
 	<script type="text/javascript" src="js/collection.js"></script>
-	<script type="text/javascript" src="js/oscillatorstream.js"></script>
 	<script type="text/javascript" src="js/waves.js"></script>
+	<script type="text/javascript" src="js/scriptprocessornode.js"></script>
+	<script type="text/javascript" src="js/oscillatorstream.js"></script>
 	<script type="text/javascript" src="js/keyboards.js"></script>
+	<script type="text/javascript" src="js/temperings.js"></script>
 	<script type="text/javascript" src="js/ascensionsynth.js"></script>
 </head>
 <body>
@@ -22,8 +23,10 @@
 	<div id="grid"></div>
 	<div id="controlArea">
 		<form id="controls" action="" method="">
-			<div class="button-group" id="waveSelector"></div>
 			<div id="kbSelector"></div>
+			<div id="temperingSelector"></div>
+			<br />
+			<div class="button-group" id="waveSelector"></div>
 			<br />
 			<input type="button" id="lumisonos" class="ctrl_button cosmic_success" value="Lumisonos" /><br />
 			<input type="button" id="seq_start_stop" class="ctrl_button" value="Start" class="success" /><br />
