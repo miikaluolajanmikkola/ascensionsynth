@@ -22,7 +22,7 @@
 //var preloadAudio = false;
 var gridMode = 'grid'; // 'solfeggios' || 'grid' = for the sake of development convenience
 
-var pluckedMax = 8;
+var pluckedMax = 9;
 var interval_length = 1000; 
 
 var seqStepLengthDefault = 8;
@@ -163,6 +163,7 @@ function playTone(freq) {
  */
 function createSacredGridLayout() {
 
+	var x, y, z;
 	var rgb;
 	//var rgbx;
 	//var rgby;
@@ -171,9 +172,13 @@ function createSacredGridLayout() {
 
 	var html = '';
 	for ( y = 9; y > 0; y-- ) {
-		for ( x = 1; x <= 9; x++ ) {				
-			z = zi - x;
+		for ( x = 1; x <= 9; x++ ) {	
 
+			//z = cos(x+y+z);
+			//alert(z);
+
+			z = zi - x;
+			
 			if ( z < 1 )
 				z = base - (abs(z));
 			if (x == 0) x = '';
@@ -353,8 +358,6 @@ $(document).ready(function () {
 			plucked.shift();
 			//console.log(plucked);
 		}
-		
-
 		//console.log(rgb);
 		//var colorSum = 
 		$('#lumisonos').css('background-color', '#' + rgb[1] + rgb[1] + rgb[2] + rgb[2] + rgb[0] + rgb[0]);
@@ -365,18 +368,17 @@ $(document).ready(function () {
 	/**
 	 * Keyboard Player
 	 * 
-	 * @todo: Debug keyboard event validation
+	 * @todo: Improve keyboard event validation
 	 */
 	$(document).on('keydown', function(event) {
 
 		if (!event) event = window.event;
-		//console.log(event.which);
-		//console.log(keyboardCollection.item(currentKeyboard)[event.key]);
-
-		if (keyboardCollection.item(currentKeyboard)[event.key] != -1) {
+		if (keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which] ] != -1) {
 			
-			$("#"+keyboardCollection.item(currentKeyboard)[event.key]).trigger('click');	
+			$("#"+keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which]  ]).trigger('click');	
 		}
+
+		return;
 	});
 
 	$('#waveSelector .ctrl_button').on('click', function() {
@@ -384,6 +386,8 @@ $(document).ready(function () {
 		createWaveGrid(this.id);
 
 		$(this).addClass('active').siblings().removeClass('active');
+
+		return;
 	});
 
 	$('#seq_start_stop').on('click', function() {
