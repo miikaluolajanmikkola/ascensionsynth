@@ -416,6 +416,7 @@ $(document).ready(function () {
 
 	$('.knob').knob();
 
+	// Warning! This may shutdown audio node completely, has been improved in playTone handling but not tested yet.
 	//webSynth = new WebSynth();
 
 	//currentSequences
