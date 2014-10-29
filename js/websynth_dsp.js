@@ -8,6 +8,7 @@
 
 
 ///////////// BROWSER CHECK /////////////////////
+
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 window.addEventListener('load', init, false);
 function init() {
@@ -17,6 +18,8 @@ function init() {
 		alert('Web Audio API is not supported in this browser');
 	}
 };
+
+
 
 ///////////// GLIDE /////////////////////
 var Glide = function() {
@@ -395,6 +398,9 @@ CTL_Filter.prototype.set_on = function(val) {
 	}
 }
 
+/**
+ * What type is f, could it be float and be sent from this new precision UI? - Miika L-M
+ */
 CTL_Filter.prototype.set_freq = function(f) {
 	this.base_freq = f;
 	this.freq = Math.min(100, this.base_freq + this.eg * this.amount * 100);
@@ -514,7 +520,10 @@ CTL_BitCrusher.prototype.getnode = function() {
 
 ///////////// SYNTH MAIN /////////////////////
 var WebSynth = function() {
-    this.context = new AudioContext();
+
+    this.context = new ( window.AudioContext || window.webkitAudioContext)();
+    //this.context = window.getAC();
+    console.log(this.context);
     this.root = this.context.createScriptProcessor(stream_length, 1, 2);
 	this.vco1 = new VCO(this.context.sampleRate);
 	this.vco2 = new VCO(this.context.sampleRate);
@@ -529,11 +538,11 @@ var WebSynth = function() {
 	this.root.connect(this.filter.getnode());
 	this.filter.connect(this.volume.getnode());
 	this.volume.connect(this.context.destination);
-	this.volume.connect(this.delay.getnode1());
+	this.volume.connect(this.delay.getnode1()); //gets a gain node
 	this.volume.connect(this.delay.getnode2());
 	this.delay.connect(this.context.destination);
 
-
+	//return this;
 /*
 	root -> filter -> volume -> dest
                              -> delay.node1 -> dest
@@ -543,6 +552,7 @@ var WebSynth = function() {
 };
 
 WebSynth.prototype.play = function(n) {
+
 	this.eg.note_on();
 	this.feg.note_on();
     var f1 = Math.pow(2.0, (this.vco1.oct + n - 4 + this.vco1.fine) / 12.0);
@@ -550,6 +560,7 @@ WebSynth.prototype.play = function(n) {
 	this.vco1.glide_init(f1);
 	this.vco2.glide_init(f2);
 
+	//What is the reason of this duplicate?
 	var self = this;
     this.root.onaudioprocess = function(event) {
 		self.filter.set_eg(self.feg.gain);
