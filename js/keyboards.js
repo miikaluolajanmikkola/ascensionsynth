@@ -6,10 +6,12 @@
 
 
 /**
- * This forces event.which mapping to keys
+ * This forces event.which mapping to keys, which are needed to build meaningful Keyboard Collections.
+ * All scandics might not work, test! This could be far from a perfect mapper.
  * @type {Object}
  */
 var kbEventNumber = {
+	'32' : 'space;',
 	'192' : '§',
 	'49' : '1',
 	'50' : '2',
@@ -63,6 +65,7 @@ var kbEventNumber = {
 var kbCollection = new Collection();
 
 var kbZenOvertones = {
+	'space' : 999,
 	'<' : 111, 
 	'a' : 147,
 	's' : 258,
