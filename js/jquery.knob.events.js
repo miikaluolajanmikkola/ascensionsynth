@@ -8,17 +8,23 @@ $(function($) {
 
     $(".knob").knob({
         change : function (value) {
+
+            /**
+             *  Problem: how do we know which knob had been moved?
+             */
             
+            //acDecay = value;
             //console.log("change : " + value);
         },
         release : function (value) {
+            acDecay = value;
             //console.log(this.$.attr('value'));
-            console.log("release : " + value);
+            //console.log("release : " + value);
         },
         cancel : function () {
             console.log("cancel : ", this);
-        },
-        /*format : function (value) {
+        },/*
+        format : function (value) {
             return value + '%';
         },*/
         draw : function () {
