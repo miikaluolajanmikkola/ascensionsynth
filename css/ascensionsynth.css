@@ -4,6 +4,24 @@
     Author     : Miika Luolajan-Mikkola
 */
 
+@viewport{
+    zoom: 1.0;
+    width: device-width; /* | extend-to-zoom */
+}
+/* Necessary? */
+@-ms-viewport{
+    width: extend-to-zoom;
+    zoom: 1.0;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 
 body {
 
@@ -16,7 +34,7 @@ body {
 	background: radial-gradient(ellipse at center, rgba(65,74,91,1) 0%,rgba(1,1,34,1) 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#414a5b', endColorstr='#010122',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 
-
+	color: #f1f1f1;
 	/*
 	background-image:-moz-linear-gradient(top, #232340, #010101);
 	background-image:-ms-linear-gradient(top, #f1f1f1, #010101);
@@ -30,6 +48,7 @@ body {
 }
 
 .container-fluid {
+	/* display:table - set in bootstrap.min.css */
 	width: 100%;
 	background-image:-moz-linear-gradient(left, #232340, #010101);
 	background-image:-ms-linear-gradient(left, #232340, #010101);
@@ -39,6 +58,22 @@ body {
 	background-image:linear-gradient(left, #232340, #010101);
 	background-repeat:repeat-x;
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#232340', endColorstr='#010101', GradientType=0);
+}
+
+#wrap	{ 
+	width:100%; 
+	text-align:center;   
+}
+#center { 
+	margin:0 auto; 
+	padding:0; 
+	width:100%; 
+	position:relative;  
+}
+#header { 
+	height:89px;
+	background-image:url('../images/ds2.png');
+	background-position: 0px -130px;
 }
 
 h1, h2, h3, h4 { 
@@ -59,7 +94,20 @@ h1, h2, h3, h4 {
 	line-height: 1.4em; 
 	vertical-align: middle; 
 	margin: 10px;
-	font-size: 18px;/**/	
+	/*font-size: 18px;/**/
+	
+	float: left;
+	display: inline;
+	/**/
+}
+
+#naviDisplay {
+	float: left;
+	display: inline;
+	margin: 144px;
+	border: 1px dotted #d5d5d5;
+	padding: 13px;
+	width: 377px;
 }
 
 ul li { list-style-type: none; }
@@ -96,10 +144,53 @@ ul li { list-style-type: none; }
 	box-shadow:0 1px 3px rgba(0, 0, 0, 0.25),inset 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 
-.clear { clear: both; }
+.clear { clear: both; width: 0px; height: 0px !important; }
+
+
+
+#synthesisControls {
+	float: right;
+	display: inline;;
+	margin-right: 20px;*/
+	margin-left: 20px;
+
+	width: 280px;
+	/*position: relative;
+	top: 0px;*/
+}
+
+#ascensionInterface {
+
+
+}
+
+.wsControls {
+	float: left;
+	display: table;
+	text-align: center;
+}
+
+.wsControls h3 {
+	/*font-family: font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; float: none; */
+}
+
+.wsBtnWrap {
+	float: left;
+	display: inline;
+	margin: 13px 0px;
+}
+
+.wsBtnWrap input, span {
+	float: none;
+	color: #22cc22;
+	display: block;
+	text-align: center;
+}
 
 #solfeggio_main {
-	width: 1002px;
+	
+	width: 1315px;
+
 	margin: 0; padding: 0;
 
 	opacity: 0.9;
@@ -124,21 +215,23 @@ ul li { list-style-type: none; }
 }
 
 #solfeggio_main #grid {
-	
+
+	float:left;
+	display: inline;
 	/*width: 816px;  sq(64^2)x2)*9 */
 	/*width: 580px; /* 64*9 */
 	/*background-image: url('../images/geokone_export.png');
 	background-image: url('../images/ds2.png');*/
 	background-position: -28px -28px;
 	opacity: 1;
-	float:left;
 	width: 522px;
 	height: 522px;
 
-	margin: 75px 144px;
+	margin: 34px 144px;
 	border: 9px solid #010124;
 	/*border: 9px solid #828282;*/
 
+	/* -45° as the Flower of Life should be presented */
     -webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
     transform: rotate(-45deg);
     -ms-transform: rotate(-45deg); /* IE 9 */
@@ -158,7 +251,7 @@ ul li { list-style-type: none; }
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 	*/
-	opacity: 0.8;
+	opacity: 0.9;
 
 	-webkit-border-radius:5px;
 	-moz-border-radius:5px;
@@ -168,7 +261,8 @@ ul li { list-style-type: none; }
 	background-color: #010122;
 	border: 1px solid #010133; 
 	/*border-bottom: 1px solid #010133; */
-	float: left; 
+	float: left;
+	display: inline;
 	width:54px; 
 	height: 54px; 
 	line-height: 54px; 
@@ -180,7 +274,13 @@ ul li { list-style-type: none; }
 	
 	z-index: 999;
 }
+
+.freqButton:hover {
+	border: 1px solid rgb(36%, 119%, 163%);
+}
+
 .freqButton span {
+	color: #f1f1f1;
 	display: block;
 	/*position: relative;*/
 	-webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
@@ -212,7 +312,8 @@ ul li { list-style-type: none; }
 	background-color: #010133;
 	opacity: 0;
 	color: #fff;
-	/*border: 1px solid #9c225d;*/
+	/*border: 1px solid #77222;*/
+	border: 1px solid rgb(36%, 119%, 163%);/**/
 }
 .default_grid_freq_view { /* Hide original text span from messing around with relative block position while plucked */ }
 
@@ -227,14 +328,17 @@ ul li { list-style-type: none; }
 
 
 #solfeggio_main #controlArea {
+	
+	float: left;
+	display: inline;
+	
 	opacity: 0.9;
 
 	-webkit-border-radius:10px;
 	-moz-border-radius:10px;
 	border-radius:10px;
-	float: right;
-
-	text-align: right;
+	
+	text-align: center;
 	/*position: relative;
 	top: -682px; right: 15px;*/
 	background-color: #010122;
@@ -248,6 +352,9 @@ ul li { list-style-type: none; }
 #solfeggio_main #controlArea input { width: 96px; text-align: right; }
 
 #solfeggio_main #controlArea input.ctrl_button {
+
+	text-align: left;
+	width: 89%;
 
 	background-image:-moz-linear-gradient(top, #2244cc, #112288);
 	background-image:-ms-linear-gradient(top, #2244cc, #112288);
@@ -273,7 +380,7 @@ ul li { list-style-type: none; }
 	box-shadow: 0 0 4px rgba(0,0,0, .75);
 	
 	font-size:1.1em;
-	text-align: center;
+	
 }
 
 .cosmic_success {
@@ -310,6 +417,14 @@ box-shadow: 0 0 1px rgba(0,0,0, .75);
 	bottom: -30px;
 }
 
+
+#copyright {
+	color: #818181;
+	/*float: right;
+	display: inline;*/
+	margin: 212px 10px;
+}
+/*
 #audioWindow {
 	width: 1024px;
 	height: 255px;
@@ -319,12 +434,9 @@ box-shadow: 0 0 1px rgba(0,0,0, .75);
 	z-index: -1;
 	opacity: 0.8;
 }
+*/
 
-#copyright {
-	color: #818181;
-	float: right;
-	margin: 212px 10px;
-}
+
 
 
 
