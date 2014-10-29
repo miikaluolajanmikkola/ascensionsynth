@@ -7,20 +7,34 @@
 	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/ascensionsynth.css" />
 	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="js/collection.js"></script>
+
+	<!-- Candy light bars implemented here, needs refactoring 
+	<link rel="stylesheet" type="text/css" href="css/knobKnob.css" />
+	<script type="text/javascript" src="js/knobKnob.jquery.js"></script>
+	<script type="text/javascript" src="js/knobTransform.js"></script>-->
+	
+	<!-- Second, better knob solution -->
+	<script type="text/javascript" src="js/jquery.knob.js"></script>
+	<script type="text/javascript" src="js/jquery.knob.events.js"></script>
+	<!--<script type="text/javascript" src="js/excanvas.js"></script>-->
 	<script type="text/javascript" src="js/waves.js"></script>
 	<script type="text/javascript" src="js/scriptprocessornode.js"></script>
 	<script type="text/javascript" src="js/oscillatorstream.js"></script>
 	<script type="text/javascript" src="js/keyboards.js"></script>
 	<script type="text/javascript" src="js/temperings.js"></script>
 	<script type="text/javascript" src="js/ascensionsynth.js"></script>
+	<script type="text/javascript" src="js/websynth_dsp.js"></script>
 </head>
 <body>
-<div class="container-fluid">
-	<h1>Ascension Synthesizer</h1>
+<!--<div class="container-fluid"></div>-->
+<div id="wrap">
+<div id="center">
+<div id="header">
+	<h2>Ascension Synthesizer</h2>
+	<!--<div id="naviDisplay">Loading &lt;3</div>-->
 </div>
-<div id="solfeggio_main">
-	<div id="grid"></div>
+<div id="solfeggio_main" class="noselect">
+
 	<div id="controlArea">
 		<form id="controls" action="" method="">
 			<div id="kbSelector"></div>
@@ -33,7 +47,138 @@
 			<div id="seqSelector"></div>
 		</form>
 	</div>
-	<div id="copyright">© Miika Luolajan-Mikkola 2014</div>
+
+	<div id="grid"></div>
+
+	<div id="synthesisControls">
+		<!-- TODO: implement #bars with knobKnob -->
+		<div id="ascensionInterface">
+			<div class="wsControls">
+				<h3>Mode</h3>
+				<div class="clear"></div>
+				<div class="wsBtnWrap">
+					<span>Glissa</span>
+					<input id="glidetime" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#118811" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true"  data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>Glissandoff</span>
+					<input id="glidetoggle" value="62" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a159f" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+			</div>
+			<div class="clear"></div>
+			<div class="wsControls">
+				<h3>Oscillators</h3>
+				<div class="clear"></div>
+				<div class="wsBtnWrap">
+					<span>Wave 1</span>
+					<input id="vco1wave" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>Wave 2</span>
+					<input id="vco2wave" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>W1Pitch</span>
+					<input id="vco1pitch" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>	
+				<div class="wsBtnWrap">
+					<span>W1Fine</span>
+					<input id="vco1fine" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>W2Pitch</span>
+					<input id="vco2pitch" value="0" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>W2Fine</span>
+					<input id="vco2fine" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>	
+				<div class="wsBtnWrap">	
+					<span>W1Gain</span>
+					<input id="vco1gain" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>W1Onoff</span>
+					<input id="vco1toggle" value="1" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>W2Gain</span>
+					<input id="vco2gain" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>W2Onoff</span>
+					<input id="vco2toggle" value="1" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+			</div>
+			<div class="clear"></div>
+			<div class="wsControls">
+				<h3>Filter</h3>
+				<div class="clear"></div>
+				<div class="wsBtnWrap">
+					<span>Freq</span>
+					<input id="filterFreq" value="147" data-min="0" data-max="5500" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>Reso</span>
+					<input id="resonance" value="21" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">	
+					<span>EG Am</span>
+					<input id="envAmount" value="34" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">	
+					<span>A</span>
+					<input id="feg_a" value="0" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">	
+					<span>D</span>
+					<input id="feg_d" value="34" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>S</span>
+					<input id="feg_s" value="62" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>R</span>
+					<input id="feg_r" value="20" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+			</div>
+			<div class="clear"></div>
+			<div class="wsControls">
+				<h3>Envelope</h3>
+				<div class="clear"></div>
+				<div class="wsBtnWrap">
+					<span>A</span>
+					<input id="eg_a" value="0" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>D</span>
+					<input id="eg_d" value="20" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>S</span>
+					<input id="eg_s" value="62" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>R</span>
+					<input id="eg_r" value="20" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>Gain</span>
+					<input id="volume" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="wsBtnWrap">
+					<span>Delay</span>
+					<input id="delay" value="20" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+				</div>
+				<div class="clear"></div>
+			</div><!-- wsControls -->
+		</div><!-- ascensionInterface -->
+	</div><!-- synthesisControls -->
+	<div class="clear"></div>
+</div><!-- solfeggioMain -->
+	<!--<div id="copyright">© Miika Luolajan-Mikkola 2014</div>-->
+</div>
 </div>
 </body>
 </html>
