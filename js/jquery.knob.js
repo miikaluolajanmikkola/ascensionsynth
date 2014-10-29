@@ -704,14 +704,22 @@
                 2
             ) + 2;
 
+            /**
+             *  Params hacked by Miika Luolajan-Mikkola
+             */
             this.o.displayInput
                 && this.i.css({
                         'width' : ((this.w / 2 + 4) >> 0) + 'px',
+                        //'height' : 100 + '%',
                         'height' : ((this.w / 3) >> 0) + 'px',
-                        'position' : 'absolute',
+                        'position' : 'relative',
+                        'top' : -17 + 'px',
+                        'left' : 12 + 'px',
                         'vertical-align' : 'middle',
-                        'margin-top' : ((this.w / 3) >> 0) + 'px',
-                        'margin-left' : '-' + ((this.w * 3 / 4 + 2) >> 0) + 'px',
+                        //'margin-top' : ((this.w / 3) >> 0) + 'px',
+                        'margin-top' : 0 + 'px',
+                        //'margin-left' : '-' + ((this.w * 3 / 4 + 2) >> 0) + 'px',
+                        'margin-left' : 0 + 'px',
                         'border' : 0,
                         'background' : 'none',
                         'font' : this.o.fontWeight + ' ' + ((this.w / s) >> 0) + 'px ' + this.o.font,
