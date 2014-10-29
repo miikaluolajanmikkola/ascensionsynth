@@ -1,23 +1,52 @@
 /**
  * Wavetable algorithms copied from the Internet.
- *
- * Implemented in Ascension Synthesizer by Miika Luolajan-Mikkola
+ * Collection is a application wide Object container with helper functions
  */
 
+var Collection = function(){
+
+  this.count = 0;
+  this.collection = {};
+  this.keyList = [];
+
+  this.add = function(key, item) {
+    if ( this.collection[key] != undefined)
+      return undefined;
+    this.collection[key] = item;
+    this.keyList.push(key);
+    return ++this.count
+  }
+
+  this.remove = function(key) {
+    if ( this.collection[key] == undefined)
+      return undefined;
+    delete this.collection[key]
+    return --this.count
+  }
+
+  this.item = function(key) {
+    return this.collection[key];
+  }
+
+  this.list = function() {
+    return this.keyList;
+  }
+
+}
 
 var wfColl = new Collection(); // Stands for Wave Function Collection {Collection}.count, .headers, .list, .item
 wfColl.add('Sinewave', 'sinewave');
+wfColl.add('Waterdrop', 'waterdrop');
 //wfColl.add('Supersine', 'supersine');
-wfColl.add('Harpsicord', 'harpsicord');
+wfColl.add('Sacred Harpsicord', 'harpsicord');
 wfColl.add('FM1', 'bell1');
 wfColl.add('FM2', 'bell2');
-wfColl.add('Waterdrop', 'waterdrop');
 wfColl.add('Violin', 'violin');
-wfColl.add('Clarinet', 'clarinet');
-wfColl.add('Laser1', 'laserstatic1');
-wfColl.add('Laser2', 'laserecho');
+//wfColl.add('Clarinet', 'clarinet');
+//wfColl.add('Laser1', 'laserstatic1');
+//wfColl.add('Laser2', 'laserecho');
 wfColl.add('Whitenoise', 'whitenoise');
-wfColl.add('Wsin', 'wikisin');
+//wfColl.add('Wsin', 'wikisin');
 /*
 waveCollection.add('Wsquare', 'wikisquare');
 waveCollection.add('Wsaw', 'wikisaw');
