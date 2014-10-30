@@ -107,6 +107,8 @@ var wikisin = function wikisin(f, samples_length) {
   }
   return samples;
 }
+
+
 /*
 //SQUARE
 function wikisquare(f, samples_length) {
