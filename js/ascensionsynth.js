@@ -514,31 +514,58 @@ $(document).ready(function () {
 
 	/****** Synth Knob Events ******/
 
-	$('.wsBtnWrap').on('mouseout', function() {
+	function changeKnob(inputElem) {
+		
+		var input = $(inputElem).find('input'); 
 
-		/**
-		 * @todo: Check if value was changed, only then proceed.
-		 */
-		var input = $(this).find('input'); 
+		switch ( $(input).attr('id')) {
+			case "vco1wave":
+				asOscType = oscTypes[ $(input).val() - 1];
+			break;
+			case "vco1gain":
+				asOscGain = $(input).val();
+			break;
+			case "vco1fine":
+				asDetune = $(input).val();
+			break;
+			case "filterType":
+				asFilterType = filterTypes[ $(input).val() -1];
+			break;
+			case "filterFreq":
+				asFilterCutoff = $(input).val();
+			break;
+			case "resonance":
+				asFilterResonance = $(input).val();
+			break;
+			case "filterGain":
+				asFilterGain = $(input).val();
+			break;
+			case "volume":
+				asAmplitude = $(input).val();
+			break;
+			case "eg_a":
+				asAttack = $(input).val();
+			break;
+			case "eg_d":
+				asDecay = $(input).val();
+			break;
+			default:
+		}
+	}
 
-		//change: (function(){
-			switch ( $(input).attr('id')) {
-				case "filterFreq":
-					//console.log('filtering');
-				break;
-				case "volume":
-					asAmplitude = $(input).val();
-				break;
-				case "eg_a":
-					asAttack = $(input).val();
-				break;
-				case "eg_d":
-					asDecay = $(input).val();
-				break;
-				default:
-			}
-		//})
-	});//.appendTo($(this).parent());
+	$('.wsBtnWrap').bind('mousewheel DOMMouseScroll', function(event){
+	    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+	        changeKnob(this);
+	    }
+	    else {
+	        changeKnob(this);
+	    }
+	});
+
+	$('.wsBtnWrap').on('mouseup', function() {
+
+		changeKnob(this);
+	});//.appendTo('someElement');
 /*
 	$('.wsBtnWrap').on('mouseout', function(){
 
@@ -670,9 +697,6 @@ $(document).ready(function () {
 	}).appendTo('#synthesisControls');
 
 	/**/
-
-
-
 
 	/**
 	 * To be developed Knob Lights, KnobKnob, deprecating maybe
