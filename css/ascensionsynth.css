@@ -71,8 +71,9 @@ body {
 }
 #header { 
 	height:89px;
-	background-image:url('../images/ds2.png');
+	/*background-image:url('../images/ds2.png');*/
 	background-position: 0px -130px;
+	opacity: 0.7;
 }
 
 h1, h2, h3, h4 { 
