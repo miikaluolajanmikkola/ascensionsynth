@@ -521,16 +521,14 @@ $(document).ready(function () {
 			case "filterFreq":
 				//console.log('filtering');
 			break;
-			/*
 			case "volume":
-				acDecay = $(this).val();
+				asAmplitude = $(this).val();
 			break;
-			/**/
 			case "eg_a":
-				acAttack = $(this).val();
+				asAttack = $(this).val();
 			break;
-			case "eg_r":
-				acDecay = $(this).val();
+			case "eg_d":
+				asDecay = $(this).val();
 			break;
 		}
 	});
