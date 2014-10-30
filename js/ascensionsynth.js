@@ -171,7 +171,7 @@ function playTone(freq) {
 		// send waveCanvas[freq] (float array) as additional parameter?
 		// param output = AC.audioContext can be called third - it used to be defined "null" for some reason
 		//console.log('buffering osc');
-		bufferOscStream(0, freq); 
+		bufferOscStream(0.9, freq); 
 	}
 
 	if ( webSynth != null) {
@@ -180,7 +180,7 @@ function playTone(freq) {
 		//webSynth.play(freq);
 	}
 
-	return;
+	//return;
 
 }
 
@@ -388,7 +388,7 @@ function freqButtonEventHandle(freqButton) {
 		//$('body').css('background', 'radial-gradient(ellipse at center, rgba(65,74,91,1) 0%,rgba('+rgb[1]+rgb[1]+', '+rgb[2]+rgb[2]+', '+ rgb[0] + rgb[0] +',1) 100%)');
 		//$('#grid').css('border-color', '#0301' + rgb[1] + rgb[1]);
 		
-		return;
+		//return;
 }
 
 
@@ -434,13 +434,15 @@ $(document).ready(function () {
 		// implement stopTone();
 	});
 	
+	
 	$('.freqButton').on('hover', function() {
-		/*
+		
 		if (soloMouseRunning === true) {
 			freqButtonEventHandle(this);
 		}
-		*/
+		
 	});
+	
 
 	/**
 	 * Keyboard Player
