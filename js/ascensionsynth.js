@@ -104,7 +104,7 @@ var csi = 0; //Current Sequence Index
 
 var currentKeyboard;
 
-var webSynth;
+var webSynth = null;
 
 
 
@@ -158,12 +158,6 @@ function createWaveGrid(waveform) {
  */
 function playTone(freq) {
 
-	// WEBSYNTH (SPN)
-	if ( webSynth) {
-		//console.log('websynth play');
-		//setTimeout(function(){ webSynth.play(freq); }, 1000);
-		//webSynth.play(freq);
-	}
 	// WAVE PROCESS BUFFER
 	if ( waveCanvas[freq] ) {
 		//Now we have samples to use SPN with our JS methods in waves.js
@@ -177,8 +171,15 @@ function playTone(freq) {
 		// send waveCanvas[freq] (float array) as additional parameter?
 		// param output = AC.audioContext can be called third - it used to be defined "null" for some reason
 		//console.log('buffering osc');
-		bufferOscStream( 0.5, freq); 
+		bufferOscStream(0, freq); 
 	}
+
+	if ( webSynth != null) {
+		//console.log('websynth play');
+		//setTimeout(function(){ webSynth.play(freq); }, 1000);
+		//webSynth.play(freq);
+	}
+
 	return;
 
 }
@@ -410,11 +411,8 @@ $(document).ready(function () {
 		//doesn't affect canvas drawn color 
 	});
 	//}, 1000);
-	/**/
-
-	//createWaveGrid('sinewave');
-
 	$('.knob').knob();
+	//createWaveGrid('sinewave');
 
 	// Warning! This may shutdown audio node completely, has been improved in playTone handling but not tested yet.
 	//webSynth = new WebSynth();
@@ -430,24 +428,24 @@ $(document).ready(function () {
 		freqButtonEventHandle(this);
 	});
 	
-	$('.freqButton').on('mouseup', function() {
+	$('#grid').on('mouseup', function() {
 
 		soloMouseRunning = false;
 		// implement stopTone();
 	});
 	
 	$('.freqButton').on('hover', function() {
-
-		if (soloMouseRunning == true) {
+		/*
+		if (soloMouseRunning === true) {
 			freqButtonEventHandle(this);
 		}
+		*/
 	});
-
 
 	/**
 	 * Keyboard Player
 	 * 
-	 * @todo: Improve keyboard event validation
+	 * @todo: Keyboard  Improve keyboard event validation.
 	 */
 	$(document).on('keydown', function(event) {
 
@@ -514,25 +512,37 @@ $(document).ready(function () {
 
 	/****** Synth Knob Events ******/
 
-	$('.knob').on('hover', function() {
+	$('.wsBtnWrap').on('mouseout', function() {
 
-		switch ( $(this).attr('id')) {
+		/**
+		 * @todo: Check if value was changed, only then proceed.
+		 */
+		var input = $(this).find('input'); 
 
-			case "filterFreq":
-				//console.log('filtering');
-			break;
-			case "volume":
-				asAmplitude = $(this).val();
-			break;
-			case "eg_a":
-				asAttack = $(this).val();
-			break;
-			case "eg_d":
-				asDecay = $(this).val();
-			break;
-		}
+		//change: (function(){
+			switch ( $(input).attr('id')) {
+				case "filterFreq":
+					//console.log('filtering');
+				break;
+				case "volume":
+					asAmplitude = $(input).val();
+				break;
+				case "eg_a":
+					asAttack = $(input).val();
+				break;
+				case "eg_d":
+					asDecay = $(input).val();
+				break;
+				default:
+			}
+		//})
+	});//.appendTo($(this).parent());
+/*
+	$('.wsBtnWrap').on('mouseout', function(){
+
+		console.log($(this).find('span').text());
 	});
-
+*/
 	/*
 	$('.knob #glideTime').on('change', function() {
 		
@@ -627,14 +637,15 @@ $(document).ready(function () {
 	$('.knob #eg_a').on('change', function() {
 		change: (function() { webSynth.eg.set_a($(this).val()); } )
 	}).appendTo('#synthesisControls');
-
-	$('.knob #eg_d').on('change', function() {
+	
+	$('#eg_d').on('change', function() {
 		change: (function() { 
-			webSynth.eg.set_d($(this).val()); 
-			//webSynth.eg.set_r($(this).val());
+			console.log('success');
+			asDecay = $(this).val();
+			//webSynth.eg.set_d($(this).val()); 
 		})
-	}).appendTo('#synthesisControls');
-
+	});//.appendTo('#synthesisControls');
+	/*
 	$('.knob #eg_s').on('change', function() {
 		change: (function() { webSynth.eg.set_s($(this).val()); } )
 	}).appendTo('#synthesisControls');
@@ -642,8 +653,7 @@ $(document).ready(function () {
 	$('#eg_r').on('change', function() {
 		change: (function() {
 			console.log('success');
-			acDecay = $(this).val();
-			//webSynth.eg.set_d($(this).val()); 
+			acDecay = $(this).val(); 
 			//webSynth.eg.set_r($(this).val());
 		})
 	}); //.appendTo('#synthesisControls');
@@ -724,6 +734,12 @@ $(document).ready(function () {
 
 		if (sequenceRunning == true) {
 			
+			/** 
+			 * If we want accurate timing, AudioContext source.start should be given a structure of 
+			 * different tones with their own starttimes. This data structure should be designed.
+			 * Unless we find a way to run setInterval() really reliably.
+			 */
+
 			//console.log(csi); //0-7
 			//Random elements from Grid and Solfeggios
 			if ( gridMode == 'grid') {
