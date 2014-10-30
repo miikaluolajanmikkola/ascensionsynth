@@ -231,18 +231,18 @@ var violin = function violin(f, samples_length) {
 
   var samples = [];
   for (var i=0; i < samples_length ; i++) {
-    var t = i/samples_length;
-    var y=0;
+    var t = i / samples_length;
+    var y = 0;
     var A_total = 0;
     for (var harm=1;harm<=7;harm++) {
-      var f2 = f*harm;
-      var A = 1/harm;
+      var f2 = f * harm;
+      var A = 1 / harm;
       A_total += A;
-      y += A*sin(f2*2*PI*t);
+      y += A * sin(f2 * 2 * PI * t);
     }
-    samples[i] = y/A_total;
-    samples[i] *= (1-0.5*sin(2*PI*6*t)); // Add a low frequency amplitude modulation
-    samples[i] *= (1-exp(-t*3));
+    samples[i] = y / A_total;
+    samples[i] *= (1 - 0.5 * sin(2 * PI * 6 * t)); // Add a low frequency amplitude modulation
+    samples[i] *= (1 - exp(-t * 3));
 
     if (samples[i] > 1) samples[i] = 1;
     else if (samples[i] < -1) samples[i] = -1;
