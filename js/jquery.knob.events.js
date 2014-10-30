@@ -12,12 +12,12 @@ $(function($) {
             /**
              *  Problem: how do we know which knob had been moved?
              */
-            
+
             //acDecay = value;
             //console.log("change : " + value);
         },
         release : function (value) {
-            acDecay = value;
+            //acDecay = value;
             //console.log(this.$.attr('value'));
             //console.log("release : " + value);
         },
