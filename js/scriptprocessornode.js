@@ -30,10 +30,7 @@ var distortion = audioCtx.createWaveShaper();
 var gainNode   = audioCtx.createGain();
 var biquadFilter = audioCtx.createBiquadFilter();
 var convolver  = audioCtx.createConvolver();
-
-lowpass.type = 'lowpass';
-lowpass.frequency.value = 1;
-lowpass.Q.value = 1;    
+  
 pan.setPosition(10, 5, 0);
 
 // Connect the nodes together
@@ -67,62 +64,66 @@ var asDecay = 0.2; // Only decay works, sounds more like a release to me.
 var asSustain = 0.6;
 var asRelease = 0.2;
 
-var egStoptime = 5;
+var egStoptime = 10;
 
-var keep = (function () {
-    var nextNodeID = 1;
-    return function (node) {
-        node.id = node.id || (nextNodeID++);
-        scriptNodes[node.id] = node;
-        return node;
-    };
-}());
+var oscTypes = ['sine', 'triangle', 'sawtooth', 'square', 'custom'];
+var asOscType = oscTypes[0];
+var asOscGain;
+var asDetune;
 
+var filterTypes = ['lowpass', 'highpass', 'bandpass', 'peaking', 'notch', 'lowshelf', 'highshelf', 'allpass'];
+var asFilterType = filterTypes[1];
+var asFilterCutoff = 100;
+var asFilterResonance = 10;
+var asFilterGain = 0.1;
 
-
-function fastSine(f, i) {
+function fastSine(f, it) {
     //var i = AC.currentTime;
     //var A = asAmplitude;
     //var y; // What's the meaning of y? It's not used anywhere in the process
     //y = A * sin(phase)
-    i = i + ((2 * pi * f) / i);
+    i = it + ((2 * pi * f) / it);
     if (i > (2 * pi)) {
       i = i - (2 * pi);
     }
     return i;
 }
 
-function bufferOscStream(init, freq, output) {
-
-    freq = freq || 528.0;
-    //init = Math.max(init || 0.0, AC.currentTime);
-    init = Math.max(init || 0.0, AC.currentTime);
-    output = output || AC.destination;
-    // Script stoptime, don't confuse with EG.
-    egStoptime = init + 5;
-    console.log('Current time: ' + AC.currentTime );
-    console.log('egStoptime: ' + egStoptime );
-    var osc = AC.createOscillator();
-    osc.type = 'square';
-    /*"sine",
-    "square",
-    "sawtooth",
-    "triangle",
-    "custom" */
-    osc.frequency.value = freq;
-    osc.detune.value = 1;
-    //osc.setPeriodicWave(PeriodicWave periodicWave); // Read: create/setPeriodicWave()
-    //osc attribute EventHandler 
+function bufferOscStream(init, freq, output, eg) {
     
-    var gain = scriptWithStartStopTime(osc, output, init, egStoptime, (function () {
-        /*if (egStoptime < AC.currentTime) {
-            return;
-        }*/
-        //If no amplitude if defined, the sound is not whitenoise, but random node noise :)
-        var amplitude = asAmplitude;
+    init = Math.max(init || 0.0, AC.currentTime);
+    freq = freq || 528.0;
+    output = output || AC.destination;
+    
+    /**
+     * These should be abstracted
+     */
+    egStoptime = init + 5; // Script stoptime, don't confuse with EG
+    
+    var osc = AC.createOscillator();
+    osc.frequency.value = freq;
+    osc.type = asOscType;
+    osc.detune.value = asDetune;
+    //osc.setPeriodicWave(PeriodicWave periodicWave); // Read: create/setPeriodicWave()
+    //osc attribute EventHandler
+    var oscGain = AC.createGain();
+    
+    var filter  = AC.createBiquadFilter();
+    filter.type = asFilterType;
+    filter.frequency = freq;
+    filter.detune    = asDetune;
 
-        var decay = Math.exp(- 1.0 / (asDecay * AC.sampleRate));
+    oscGain.gain.value      = asOscGain || 0.5;
+    filter.frequency.value  = asFilterCutoff || 0.1;
+    filter.Q.value          = asFilterResonance || 13;
+    filter.gain.value       = asFilterGain || 0.1;
+    //console.log(asFilterGain);
+
+    var gain = scriptWithStartStopTime(osc, output, init, egStoptime, (function () {
         
+        var amplitude = asAmplitude;
+        var decay = Math.exp(- 1.6180 / (asDecay * AC.sampleRate));
+        //console.log(decay); // Try to find the meaning of decay's float values
         return function (event, fromSamp, toSamp) {
 
             var i, inp, out;
@@ -134,25 +135,34 @@ function bufferOscStream(init, freq, output) {
                 
                 //@todo: Let's call some coloring functions from waves.js here
                 out[i] = amplitude * inp[i];
-
                 //out[i] =  amplitude * mix(amplitude, inp[i], freq);
-
                 //Completely new wave with this, sounds like a powerful oscillator! But egStoptime is lost.
                 //out[i] = 0.1 * keep(fastSine(freq, i));
             }
         };
     }()));
-    //console.log(egStoptime);
+
+    osc.connect(oscGain);
+    oscGain.connect(filter);
+    filter.connect(gain);
     
     gain.connect(output || AC.destination);
-    /**/
+
     osc.start(init);
     osc.stop(egStoptime);
+    
+    
 
 }
 
-
-
+var keep = (function () {
+    var nextNodeID = 1;
+    return function (node) {
+        node.id = node.id || (nextNodeID++);
+        scriptNodes[node.id] = node;
+        return node;
+    };
+}());
 
 function drop(node) {
     delete scriptNodes[node.id];
@@ -165,8 +175,8 @@ function scriptWithStartStopTime(input, output, init, egStoptime, handler) {
     egStoptime = Math.max(egStoptime, AC.currentTime);
     console.assert(egStoptime >= t);
 
-    var kBufferLength = 2048; // samples
-    var prepareAheadTime = 0.1; // seconds
+    var kBufferLength = 8192; // samples
+    var prepareAheadTime = 1; // seconds
 
     var init_samples = Math.floor(AC.sampleRate * t);
     var egStoptime_samples  = Math.ceil(AC.sampleRate * egStoptime);
