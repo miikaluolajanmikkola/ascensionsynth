@@ -4,7 +4,7 @@
  */
 
 // This was for Riffwave 
-//var convert255 = false;
+var convert255 = false;
 
 var Collection = function(){
 
