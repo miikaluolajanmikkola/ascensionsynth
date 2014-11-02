@@ -146,16 +146,18 @@ ul li { list-style-type: none; }
 
 .clear { clear: both; width: 0px; height: 0px !important; }
 
-.rotateLeft {
-	-webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
-    transform: rotate(-45deg);
-    -ms-transform: rotate(-45deg); /* IE 9 */
-}
+
 
 .rotateRight {
 	-webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
     transform: rotate(45deg);
     -ms-transform: rotate(45deg); /* IE 9 */
+}
+
+.rotateLeft {
+	-webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
+    transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg); /* IE 9 */
 }
 
 .skewRight {
@@ -177,7 +179,7 @@ ul li { list-style-type: none; }
 #synthesisControls {
 	float: right;
 	display: inline;;
-	margin: 18px 0px;
+	/*margin: 18px 0px 0px 0px;*/
 	width: 350px;
 	position: relative;
 	top: 10px;
@@ -187,23 +189,23 @@ ul li { list-style-type: none; }
 
 #ascensionInterface {
 
-
 }
 
 .wsControls {
 	/*border: 3px dotted #010122;*/
-
+	
+	height: 81px;
 	margin-bottom: 16px;
-
-	float: left;
+	/*float: left;*/
 	display: table;
 	text-align: center;
 }
 
 /* counter-skewed positioning hack */
 .skewLeft .wsControls {
-	margin: 22px 0px 0px 195px;
+	margin: 12px 0px 0px 173px;
 	width: 100%;
+	float: left;
 }
 /**/
 
@@ -226,11 +228,6 @@ ul li { list-style-type: none; }
 	display: block;
 	text-align: center;
 }
-
-.wsBtnWrap input:hover, .wsBtnWrap span:hover, .wsBtnWrap canvas:hover {
-	color: #22cc22;
-}
-
 
 #solfeggio_main {
 	
@@ -264,6 +261,8 @@ ul li { list-style-type: none; }
 
 	float:left;
 	display: inline;
+	position: relative;
+	z-index: 9;
 	/*width: 816px;  sq(64^2)x2)*9 */
 	/*width: 580px; /* 64*9 */
 	/*background-image: url('../images/geokone_export.png');
@@ -336,19 +335,27 @@ ul li { list-style-type: none; }
 .freqButton span:hover {
 	cursor: pointer;
 }
-.freqButton.holy { 
+
+.freqButton .holy { 
 	/*font-size: 1.12em; */
 	/*color: #007733;*/
 	/* HSL First Argument: 0 (or 360) is red, 120 is green, 240 is blue. */
 	color: hsl(190, 100%, 75%);
 	border: 1px solid #005533;
 }
+
+.freqButton.holy:hover {
+	background-color: #0f6fff;
+}
+
 .freqButton.holy span {
 	background-color: #77222;
 }
+
 .freqButton.holy .plucked {
 	
 }
+
 .freqButton .plucked {
 	-webkit-border-radius:5px;
 	-moz-border-radius:5px;
@@ -447,9 +454,9 @@ background-color :#013301; /*make the background a little darker*/
 box-shadow: 0 0 1px rgba(0,0,0, .75);
 }
 
-#solfeggio_main #controlArea select {
+#controlArea select {
 	width: 144px;
-	text-align: right;
+	text-align: left;
 }
 
 #solfeggio_main #controlArea #seq_start_stop {
@@ -465,7 +472,11 @@ box-shadow: 0 0 1px rgba(0,0,0, .75);
 	top: -145px;
 	left: -320px;
 }
-
+#bonus span {
+	-webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
+    transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg); /* IE 9 */
+}
 
 #copyright {
 	color: #818181;
@@ -485,12 +496,6 @@ box-shadow: 0 0 1px rgba(0,0,0, .75);
 }
 */
 
-
-
-
-
-#clock { font-family: Helvetica; }
-
 .clearfix { width: 0px; }
 
 .modal_custom {
@@ -504,36 +509,6 @@ box-shadow: 0 0 1px rgba(0,0,0, .75);
 	background-color: #fff;
 }
 
-#timetable { margin-top: 0px; width: 290px; }
-
-#viewSelectedHeats {
-	height: 36px;
-	line-height: 36px;
-	vertical-align: middle;
-	/*background-color: #ececec;*/
-	padding: 0px;
-	font-size: 17px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-
-}
-
-.singleHeat {
-	color: #555;
-	background-color: #eeeeee;
-	border: 1px solid #ccc;
-	text-align: center;
-	width: 80px;
-	display: inline-block;
-	margin-right: 15px;
-	height: 36px;
-	line-height: 36px;
-	vertical-align: middle;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-}
 
 
 
