@@ -45,6 +45,7 @@
 			<input type="button" id="lumisonos" class="ctrl_button cosmic_success" value="Lumisonos" /><br />
 			<input type="button" id="seq_start_stop" class="ctrl_button" value="Start" class="success" /><br />
 			<div id="seqSelector"></div>
+			<div id="settings"></div>
 		</form>
 	</div>
 
@@ -61,31 +62,31 @@
 						<span>Wave1</span>
 						<input id="vco1wave" value="1" data-min="1" data-max="5" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
-					<div class="wsBtnWrap skewLeft">
+					<!--<div class="wsBtnWrap skewLeft">
 						<span>Wave2</span>
 						<input id="vco2wave" value="1" data-min="1" data-max="5" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewLeft">
 						<span>W1Pitch</span>
 						<input id="vco1pitch" value="0" data-min="-50" data-max="50" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
-					</div>	
+					</div>-->	
 					<div class="wsBtnWrap skewLeft">
 						<span>W1Fine</span>
-						<input id="vco1fine" value="50" data-min="0" data-max="100" data-step="0.1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+						<input id="vco1fine" value="0" data-min="-50" data-max="50" data-step="0.1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
-					<div class="wsBtnWrap skewLeft">
+					<!--<div class="wsBtnWrap skewLeft">
 						<span>W2Pitch</span>
 						<input id="vco2pitch" value="0" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewLeft">
 						<span>W2Fine</span>
 						<input id="vco2fine" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
-					</div>	
+					</div>-->	
 					<div class="wsBtnWrap skewLeft">	
 						<span>W1Gain</span>
-						<input id="vco1gain" value="0.5" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+						<input id="vco1gain" value="1" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
-					<div class="wsBtnWrap skewLeft">
+					<!--<div class="wsBtnWrap skewLeft">
 						<span>W1Onoff</span>
 						<input id="vco1toggle" value="1" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
@@ -96,7 +97,7 @@
 					<div class="wsBtnWrap skewLeft">
 						<span>W2Onoff</span>
 						<input id="vco2toggle" value="1" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
-					</div>
+					</div>-->
 				</div><!-- wsControls -->
 				<div class="clear"></div>
 				<div class="wsControls">
@@ -104,7 +105,7 @@
 					<div class="clear"></div>
 					<div class="wsBtnWrap skewLeft">
 						<span>Type</span>
-						<input id="filterType" value="2" data-min="1" data-max="8" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+						<input id="filterType" value="2" data-min="0" data-max="3" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewLeft">
 						<span>Freq</span>
@@ -112,11 +113,11 @@
 					</div>
 					<div class="wsBtnWrap skewLeft">
 						<span>Reso</span>
-						<input id="resonance" value="1" data-min="0" data-max="100" data-step="0.01" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+						<input id="resonance" value="0.1" data-min="0" data-max="10" data-step="0.01" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewLeft">	
 						<span>Gain</span>
-						<input id="filterGain" value="0.1" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+						<input id="filterGain" value="0.1" data-min="0" data-max="25" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="clear"></div>
 					<div class="wsBtnWrap skewLeft">	
@@ -131,38 +132,37 @@
 						<span>S</span>
 						<input id="feg_s" value="62" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
-					<div class="wsBtnWrap skewLeft">
+					<!--<div class="wsBtnWrap skewLeft">
 						<span>R</span>
 						<input id="feg_r" value="20" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
-					</div>
+					</div>-->
 				</div>
 			</div>
 			<div class="clear"></div>
 			<div class="skewLeft">
 				<div class="wsControls">
-					<h3 class="skewRight">Envelope</h3>
+					<h3 class="skewRight">Amplitude</h3>
 					<div class="clear"></div>
+					<div class="wsBtnWrap skewRight">
+						<span>Gain</span>
+						<input id="volume" value="0.1" data-min="0" data-max="0.5" data-step="0.01" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+					</div>
 					<div class="wsBtnWrap skewRight">
 						<span>A</span>
 						<input id="eg_a" value="0" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewRight">
 						<span>D</span>
-						<input id="eg_d" value="0.2" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
+						<input id="eg_d" value="0.94" data-min="0" data-max="1" data-step="0.01" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewRight">
 						<span>S</span>
 						<input id="eg_s" value="62" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
-					<div class="wsBtnWrap skewRight">
+					<!--<div class="wsBtnWrap skewRight">
 						<span>R</span>
 						<input id="eg_r" value="0.2" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
-					</div>
-					<div class="wsBtnWrap skewRight">
-						<span>Gain</span>
-						<input id="volume" value="0.5" data-min="0" data-max="1" data-step="0.001" data-bgcolor="#8181CC" data-fgcolor="#8a155d" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
-					</div>
-					
+					</div>-->
 					<div class="clear"></div>
 				</div><!-- wsControls -->
 				<div class="wsControls">
@@ -173,7 +173,7 @@
 						<input id="glidetime" value="50" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#118811" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true"  data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewRight">
-						<span>Glissandoff</span>
+						<span>On/Off</span>
 						<input id="glidetoggle" value="62" data-min="0" data-max="100" data-step="1" data-bgcolor="#8181CC" data-fgcolor="#8a159f" data-inputcolor="#d5d5d5" class="knob" data-width="43" data-height="43" data-displayPrevious="true" data-angleoffset="-135" data-anglearc="270">
 					</div>
 					<div class="wsBtnWrap skewRight">
