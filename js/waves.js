@@ -3,6 +3,9 @@
  * Collection is a application wide Object container with helper functions
  */
 
+// This was for Riffwave 
+//var convert255 = false;
+
 var Collection = function(){
 
   this.count = 0;
@@ -36,12 +39,12 @@ var Collection = function(){
 
 var wfColl = new Collection(); // Stands for Wave Function Collection {Collection}.count, .headers, .list, .item
 wfColl.add('Sinewave', 'sinewave');
-wfColl.add('Waterdrop', 'waterdrop');
+wfColl.add('Violin', 'violin');
+wfColl.add('Droplet', 'waterdrop');
+wfColl.add('Techno', 'bell1');
+wfColl.add('Techno 2', 'bell2');
 //wfColl.add('Supersine', 'supersine');
 wfColl.add('Sacred Harpsicord', 'harpsicord');
-wfColl.add('FM1', 'bell1');
-wfColl.add('FM2', 'bell2');
-wfColl.add('Violin', 'violin');
 //wfColl.add('Clarinet', 'clarinet');
 //wfColl.add('Laser1', 'laserstatic1');
 //wfColl.add('Laser2', 'laserecho');
@@ -61,37 +64,38 @@ function getWaveCollection() {
  * These callbacks have variety in given parameters. Refactor, wrap these functions properly.
  * @type {Collection}
  */
-var nodeAudioCallback = new Collection();
-nodeAudioCallback.add('fmod', fmod);
-nodeAudioCallback.add('sign', sign);
-nodeAudioCallback.add('smoothstep', smoothstep);
-nodeAudioCallback.add('clamp', clamp);
-nodeAudioCallback.add('step', step);
-nodeAudioCallback.add('mix', mix);
-nodeAudioCallback.add('over', over);
-nodeAudioCallback.add('tri', tri);
-nodeAudioCallback.add('saw', saw);
-nodeAudioCallback.add('sq', sqr);
-nodeAudioCallback.add('grad', grad);
-nodeAudioCallback.add('noise', noise);
-nodeAudioCallback.add('cellnoise', cellnoise);
-nodeAudioCallback.add('frac', frac);
+var nodeAudioCallback = new Collection(); // 
+nodeAudioCallback.add('fmod', fmod); // x,y 
+nodeAudioCallback.add('sign', sign); // x
+nodeAudioCallback.add('smoothstep', smoothstep); // a, b, x
+nodeAudioCallback.add('clamp', clamp); // x, a, b
+nodeAudioCallback.add('step', step); // a, x
+nodeAudioCallback.add('mix', mix); // a, b, x
+nodeAudioCallback.add('over', over); // x, y
+nodeAudioCallback.add('tri', tri); // a, x
+nodeAudioCallback.add('saw', saw); // x, a
+nodeAudioCallback.add('sq', sqr); // a, x
+nodeAudioCallback.add('grad', grad); // n, x
+nodeAudioCallback.add('noise', noise); // x
+nodeAudioCallback.add('cellnoise', cellnoise); // x
+nodeAudioCallback.add('frac', frac); // x
 
 function getNodeAudioCallbackCollection() {
 
     return nodeAudioCallback;
 }
 
-var convert255 = false;
+
 
 //Input: Peak amplitude (A), Frequency (f)
 //Output: Amplitude value (y)
-var wikisin = function wikisin(f, samples_length) {
+var wikisin = function wikisin(f) {
 
   var samples = [];
   var phase;
-  for (i = 0; i < samples_length; i++) {
-    phase = i / samples_length;
+  for (i = 0; i < sampleRate; i++) {
+
+    phase = i / sampleRate;
     //y = A * sin(phase)
     phase = phase + ((2 * pi * f) / phase);
     if (phase > (2 * pi)) {
@@ -108,14 +112,12 @@ var wikisin = function wikisin(f, samples_length) {
   return samples;
 }
 
-
 /*
-//SQUARE
-function wikisquare(f, samples_length) {
+function wikisquare(f) {
 
   var samples = [];
   var phase;
-  for (i = 0; i < samples_length; i++) {
+  for (i = 0; i < sampleRate; i++) {
     
     if (phase < pi)
         y = A;
@@ -129,11 +131,10 @@ function wikisquare(f, samples_length) {
   return samples;
 }
 
-//SAW
-function wikisaw(f, samples_length) {
+function wikisaw(f) {
 
   var samples = [];
-  for (i = 0; i < samples_length; i++) {  
+  for (i = 0; i < sampleRate; i++) {  
     y = A - (A / pi * phase);
     phase = phase + ((2 * pi * f) / samplerate);
     if (phase > (2 * pi))
@@ -145,8 +146,7 @@ function wikisaw(f, samples_length) {
   return samples;
 }
 
-//TRI
-function wikitri(f, samples_length) {
+function wikitri(f) {
 
   var samples = [];
   if (phase < pi)
@@ -160,6 +160,8 @@ function wikitri(f, samples_length) {
   return samples;
 }
 */
+
+//These are pathetic
 //var attackEnd = 4800; // 5ms in 96000kHz
 //var attackEnd = 9600; // 10ms in 96000kHz
 var attackEnd = 192000 / 96000; // 20ms in 96000kHz
@@ -171,34 +173,33 @@ var arRate = function(t, targetRatio) {
   return exp(-log((1 + targetRatio) / targetRatio) / t);
 }
 
-// Equal temperament ratio = 2^(i/12)
 
-var supersine = function supersine(f, samples_length) {
 
-  var samples = [];
-  for (var i=0; i < samples_length ; i++) { // fills array with samples
-    var t = i/samples_length;               // time from 0 to 1
-    samples[i] = sin( f * 2*PI*t ); // wave equation (between -1,+1)
+var singlesine = function singlesine(f) {
+  // not single onprocess-compatible now
+  var a = [];
+  for (var i=0; i < kBufferLength ; i++) {
+    var t = i / kBufferLength; // time from 0 to 1
 
-    samples[i] *= 2 * phi;
+    a[i] = sin( f * 2 * PI * t); // wave equation (between -1,+1)  
+    /*if (i > (2 * pi)) {
+      a = t - (2 * pi);
+    }*/
 
-    if (samples[i] > 1)
-        samples[i] = 1;
-      else if (samples[i] < -1)
-        samples[i] = -1;
+    //if (a[i] > 1) a[i] = 1;
+    //else if (a[i] < -1) a[i] = -1;
 
-    if (convert255 == true)
-      samples[i] = 128 + Math.round( 127 * samples[i]);
+    //if (convert255 == true)
+     // a = 128 + Math.round( 127 * a);
   }
-  return samples;
+  return a;
 }
 
-
-var sinewave = function sinewave(f, samples_length) {
+var sinewave = function sinewave(f) {
   
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i / samples_length; // time from 0 to 1
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i/sampleRate; // time from 0 to 1
     samples[i] = sin( f * 2 * PI * t ); // wave equation (between -1,+1)  
     
     //if (i < attackEnd) samples[i] -= arRate(t, targetRatio);
@@ -213,11 +214,11 @@ var sinewave = function sinewave(f, samples_length) {
   return samples;
 }
 
-var harpsicord = function bass(f, samples_length) {
+var harpsicord = function bass(f) {
 
   var samples = [];
-  for (var i=0; i < samples_length; i++) {
-    var t = i/samples_length;
+  for (var i=0; i < sampleRate; i++) {
+    var t = i/sampleRate;
     samples[i] = pow(sin( 1.26*f/2 * 2*PI*t ),15)*pow((1-t),3) * pow(sin( 1.26*f/10 * 2*PI*t ),3)*10;
 
     if (samples[i] > 1) samples[i] = 1;
@@ -229,11 +230,11 @@ var harpsicord = function bass(f, samples_length) {
   return samples;
 }
 
-var violin = function violin(f, samples_length) {
+var violin = function violin(f) {
 
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i / samples_length;
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i / sampleRate;
     var y = 0;
     var A_total = 0;
     for (var harm=1;harm<=7;harm++) {
@@ -258,8 +259,8 @@ var violin = function violin(f, samples_length) {
 function discreetViolin(i, freq) {
 
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i/samples_length;
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i/sampleRate;
     var y=0;
     var A_total = 0;
     for (var harm=1;harm<=7;harm++) {
@@ -280,13 +281,13 @@ function discreetViolin(i, freq) {
   return samples;
 }
 
-var waterdrop = function waterdrop(f1, samples_length) { 
+var waterdrop = function waterdrop(f1) { 
 
   //var f1 = 900;
   var f2 = 20;
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i/samples_length;
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i/sampleRate;
     samples[i] = 1*cos(2*PI*f1*(t) + 20*cos(2*PI*f2*(t)) );
     samples[i] *= exp(-t*15);
 
@@ -299,11 +300,11 @@ var waterdrop = function waterdrop(f1, samples_length) {
   return samples;
 }
 
-var bell1 = function bell1(f, samples_length) {
+var bell1 = function bell1(f) {
 
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i/samples_length;
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i/sampleRate;
     var w = 2*PI*f*t;
     samples[i] = cos(w + 8*sin(w*7/5) * exp(-t*4) );
     samples[i] *= exp(-t*3);
@@ -317,11 +318,11 @@ var bell1 = function bell1(f, samples_length) {
   return samples;
 }
 
-var bell2 = function bell2(f, samples_length) {
+var bell2 = function bell2(f) {
 
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i/samples_length;
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i/sampleRate;
     var w = 2*PI*f*t;
     samples[i] = cos(w + 8*sin(w*2) * exp(-t*4) );
     samples[i] *= exp(-t*3);
@@ -335,11 +336,11 @@ var bell2 = function bell2(f, samples_length) {
   return samples;
 }
 
-var clarinet = function clarinet(f, samples_length) {
+var clarinet = function clarinet(f) {
 
   var samples = [];
-  for (var i=0; i < samples_length ; i++) {
-    var t = i/samples_length;
+  for (var i=0; i < sampleRate ; i++) {
+    var t = i/sampleRate;
     var w = f*2*PI*t;
   // Odd harmonics
     samples[i] = (sin(w) + 0.75*sin(w*3) + 0.5*sin(w*5)+0.14*sin(w*7)+0.5*sin(w*9)+0.12*sin(11*w)+0.17*sin(w*13))/(1+.75+.5+.14+.17);
@@ -355,12 +356,12 @@ var clarinet = function clarinet(f, samples_length) {
   return samples;
 }
 
-var laserecho = function laserecho(f1, samples_length) {
+var laserecho = function laserecho(f1) {
 
   var f2 = 5;
   var samples = [];
-  for (var i = 0; i < samples_length ; i++) {
-    var t = i/samples_length;
+  for (var i = 0; i < sampleRate ; i++) {
+    var t = i/sampleRate;
     samples[i] = cos(2*PI*f1*t + 1500*cos(2*PI*f2*t) );
     samples[i] *= exp(-t*4);
 
@@ -373,11 +374,11 @@ var laserecho = function laserecho(f1, samples_length) {
   return samples;
 }
 
-var laserstatic1 = function laserstatic1(f, samples_length) {
+var laserstatic1 = function laserstatic1(f) {
 
   var samples = [];
-  for (var i = 0; i < samples_length; i++) {
-    var t = i/samples_length;
+  for (var i = 0; i < sampleRate; i++) {
+    var t = i/sampleRate;
     samples[i] = sin(pow(5*2*PI*(1-t),3.6) );
 
     if (samples[i] > 1) samples[i] = 1;
@@ -389,10 +390,10 @@ var laserstatic1 = function laserstatic1(f, samples_length) {
   return samples;
 }
 
-var whitenoise = function whitenoise(f, samples_length) {
+var whitenoise = function whitenoise(f) {
 
   var samples = [];
-  for (var i = 0; i < samples_length; i++) {
+  for (var i = 0; i < sampleRate; i++) {
     samples[i] = random()*2-1;
 
     if (samples[i] > 1) samples[i] = 1;
