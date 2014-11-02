@@ -72,9 +72,6 @@ var gridStart = 1;
 var gridEnd   = rowLength;
 var waveCanvas = new Object(); // Contains wave data (floats or 255) assigned to freq cells { waveCanvas[freq] = samples }
 
-var sampleRate = 44100;
-var samples_length = sampleRate; // divide by 2 ???
-var samples = []; //new Float32Array(samples_length);
 
 var base = 9; //When subtraction of Z returns a negative number, these are ugly hacks
 var zi = 9; //Z index, growing by two on every x+yn
@@ -119,18 +116,16 @@ var webSynth = null;
  *  Atm overwrites previous collection of audio
  */
 function createWaveGrid(waveform) {
-
-	samples_length = $('#samples_length').val();
 	
 	switch (gridMode) {
 		case "solfeggios":
 			for (i = 0; i < solfeggios.length; i++) {
 				// Create samples
-				var fnparams = [solfeggios[i], samples_length];
+				var fnparams = [solfeggios[i]];
 				var fn = window[waveform];
 
 				if (typeof fn === "function") {
-
+					// Callback
 					waveCanvas[solfeggios[i]] = fn.apply(null, fnparams);
 				}
 			}
@@ -139,7 +134,7 @@ function createWaveGrid(waveform) {
 		case "grid":
 			//waveCanvas.clear();
 			for (i = 0; i < grid.length; i++) {
-				var fnparams = [grid[i], samples_length];
+				var fnparams = [grid[i]];
 				var fn = window[waveform];
 
 				if (typeof fn === "function") {
@@ -166,11 +161,6 @@ function playTone(freq) {
 	}
 	// SCRIPT PROCESSOR NODE
 	else {
-		// ScriptProcessorNode plays Oscillator as default wave until grid waves are created
-		// The call below is the more promising method with added time functions:
-		// send waveCanvas[freq] (float array) as additional parameter?
-		// param output = AC.audioContext can be called third - it used to be defined "null" for some reason
-		//console.log('buffering osc');
 		bufferOscStream(0.9, freq); 
 	}
 
@@ -238,12 +228,11 @@ function createSacredGridLayout() {
 			rgb = 'style="background-color: #'+ y + y + z + z + x + ex +'" ';
 
 			freq = "" + x + y + z;
-			if (freq.length < 2)
-				console.log(freq + ' weirdo');
 
-			if (freq.length > 0) {
+			if (freq.length < 2) 
+				console.log(freq + ' weirdo');
+			if (freq.length > 0) 
 				grid.push(freq);
-			}
 			
 			holyclass = (solfeggios.indexOf(eval(freq)) == -1) ? '' : 'holy';	
 			html += '<div id="'+ freq +'" '+ rgb +' class="freqButton '+ holyclass +'"><div class="plucked"><span class="noselect">'+ freq +'</span></div><span class="default_grid_freq_view noselect">'+ freq +'</span></div>';
@@ -329,7 +318,7 @@ function prepareSeqSelector() {
 	
 	var selected = '';
 	var markup = '<label for="sequenceSelector">Pattern</label>\
-				<select multiple id="sequenceSelector">';
+				  <select multiple id="sequenceSelector">';
 	var seqList = sequenceCollection.list();
 	for (i = 0; i < seqList.length; i++) {				
 	    if (seqList[i] == 'Random')
@@ -338,41 +327,59 @@ function prepareSeqSelector() {
 	    	selected = '';
 		markup += '<option '+ selected +' value="'+ seqList[i] +'">'+ seqList[i] +'</option>';
 	}
-	markup += '</select>\
-				<label for="interval_length">Tempo</label>\
-				<input type="text" id="interval_length" value="1000" />\
-				<br />\
-				<label for="samples_length">Time </label>\
-				<input type="text" id="samples_length" value="44100" />';
+	markup += '</select>';
 
 	return markup;
 }
 
-function freqButtonEventHandle(freqButton) {
+function prepareSettings() {
+
+	var markup = '<label for="bufferSize">Buffer</label>\
+				  <select id="bufferSize">\
+				  	<option value="256">6ms</option>\
+				  	<option value="512">11ms</option>\
+				  	<option value="1024">23ms</option>\
+				  	<option value="2048">46ms</option>\
+				  	<option selected value="4096">92ms</option>\
+				  	<option value="8192">185ms</option>\
+				  	<option value="16384">371ms</option>\
+				  </select>\
+				  <br />';
+
+	return markup;
+}
+
+function freqButtonEventHandle(freqButton, soloMouse) {
 
 		var pluckedElem = $(freqButton).find('.plucked');
-		var ptv = $(pluckedElem).text(); // Plucked Text Value
+		var ptv = $(pluckedElem).text();
 
 		playTone(ptv);
 
-		soloMouseRunning = true;
+		if(soloMouse == true)
+			soloMouseRunning = true;
 
 		var rgb = ptv;
 		var opa = 0.7;
 		$(pluckedElem).show().css('opacity', opa);
 		$(freqButton).find('.default_grid_freq_view').hide();
-
+		
+		plucked.push(freqButton);
+		
 		//Trails
-		for (i = 0; i < plucked.length; i++) {
-			var felem = $(plucked[plucked.length-i]).find('.plucked');
-			if ($(felem).text() != ptv)
+		for (i = 0; i <= plucked.length; i++) {
+			var felem = $(plucked[plucked.length - i]).find('.plucked');
+			//console.log($(felem).text());
+			if (felem != pluckedElem)
 				$(felem).css('opacity', opa-i/30);
 			else
-				$(felem).css('opacity', opa);
+				$(pluckedElem).css('opacity', opa);
+
 			rgb[0] +=  $(felem).text()[0];
 			rgb[1] +=  $(felem).text()[1];
 			rgb[2] +=  $(felem).text()[2];
 		}
+
 		if (plucked.length == pluckedMax) {
 			var fadePlucked = $(plucked[plucked.length - pluckedMax]);
 			if ($(fadePlucked).text() != ptv) {
@@ -380,15 +387,12 @@ function freqButtonEventHandle(freqButton) {
 				$(fadePlucked).find('.default_grid_freq_view').show();
 				plucked.shift();
 			}
-			//console.log(plucked);
 		}
-		plucked.push(freqButton);
-		//console.log(rgb);
+
 		$('#lumisonos').css('background-color', '#' + rgb[1] + rgb[1] + rgb[2] + rgb[2] + rgb[0] + rgb[0]);
 		//$('body').css('background', 'radial-gradient(ellipse at center, rgba(65,74,91,1) 0%,rgba('+rgb[1]+rgb[1]+', '+rgb[2]+rgb[2]+', '+ rgb[0] + rgb[0] +',1) 100%)');
 		//$('#grid').css('border-color', '#0301' + rgb[1] + rgb[1]);
 		
-		//return;
 }
 
 
@@ -401,6 +405,7 @@ $(document).ready(function () {
 	$('#temperingSelector').append( prepareTemperingSelector() );
 	$('#waveSelector').append( prepareWaveSelector() );
 	$('#seqSelector').append( prepareSeqSelector() );
+	$('#settings').append( prepareSettings() );
 	$('.plucked').hide();
 	//setTimeout(function(){
 	$('.wsBtnWrap').each(function(){
@@ -421,11 +426,15 @@ $(document).ready(function () {
 	//Must be array to handle multiple seqs at once. 
 	currentKeyboard = $('#keyboardSelector option:selected').val();
 
+	/**
+	 * 	Events of Expression
+	 */
+
 	//$('#seq_start_stop').trigger('click');
 	
 	$('.freqButton').on('mousedown', function() {
 		
-		freqButtonEventHandle(this);
+		freqButtonEventHandle(this, true);
 	});
 	
 	$('#grid').on('mouseup', function() {
@@ -439,11 +448,9 @@ $(document).ready(function () {
 		
 		if (soloMouseRunning === true) {
 			freqButtonEventHandle(this);
-		}
-		
+		}	
 	});
 	
-
 	/**
 	 * Keyboard Player
 	 * 
@@ -461,8 +468,6 @@ $(document).ready(function () {
 				   .trigger('mouseup');
 			//$("#"+keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which]  ]).trigger('mousedown');	
 		}
-
-		return;
 	});
 
 	$('#waveSelector .ctrl_button').on('click', function() {
@@ -470,8 +475,6 @@ $(document).ready(function () {
 		createWaveGrid(this.id);
 
 		$(this).addClass('active').siblings().removeClass('active');
-
-		return;
 	});
 
 	$('#seq_start_stop').on('click', function() {
@@ -496,9 +499,9 @@ $(document).ready(function () {
 		currentKeyboard = this.value;
 	});
 
-	$('#interval_length').on('blur', function(){
+	$('#bufferSize').on('change', function(){
 		
-		interval_length = this.value;
+		kBufferLength = this.value;
 	});
 
 	$('#lumisonos').on('click', function() {
@@ -510,6 +513,7 @@ $(document).ready(function () {
 			//$(plucked[i]).trigger('click');
 		}
 	});
+
 
 
 	/****** Synth Knob Events ******/
@@ -551,7 +555,7 @@ $(document).ready(function () {
 			break;
 			default:
 		}
-	}
+	};
 
 	$('.wsBtnWrap').bind('mousewheel DOMMouseScroll', function(event){
 	    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
@@ -565,7 +569,24 @@ $(document).ready(function () {
 	$('.wsBtnWrap').on('mouseup', function() {
 
 		changeKnob(this);
-	});//.appendTo('someElement');
+	
+	})
+
+	$('.wsBtnWrap').on('mouseover', function() {
+
+		$(this).find('span').css('color', '#22cc22'); 
+	});
+
+	$('.wsBtnWrap').on('mouseover', function() {
+
+		$(this).find('span').css('color', '#22cc22'); 
+	});
+
+	$('.wsBtnWrap').on('mouseout', function() {
+
+		$(this).find('span').css('color', '#616181'); 
+	});
+
 /*
 	$('.wsBtnWrap').on('mouseout', function(){
 
@@ -695,7 +716,6 @@ $(document).ready(function () {
 		//wet gain val
 		change: (function() { webSynth.delay.set($(this).val()); } )
 	}).appendTo('#synthesisControls');
-
 	/**/
 
 	/**
@@ -756,6 +776,10 @@ $(document).ready(function () {
 	 * Begin algorithmical play
 	 */
 	
+	function randomGridElement(gridLength) {
+
+	}
+
 	var run = setInterval(function() {
 
 		if (sequenceRunning == true) {
@@ -781,11 +805,11 @@ $(document).ready(function () {
 			if (mod == 1) {
 				//playTone(63.05);
 			}
-			else {			
-				$(elem).trigger('click');
-				//playTone(7.83);
-				//$('#'+7.83+' .plucked').css('display', 'block');
-			}
+			
+			freqButtonEventHandle( elem, false);		
+			//playTone(7.83);
+			$('#'+7.83+' .plucked').show();
+			
 
 			csi++;
 			if (csi == seqStepLengthDefault)
