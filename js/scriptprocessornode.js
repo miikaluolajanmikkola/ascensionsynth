@@ -1,6 +1,6 @@
 
 /**
- * Init Web Audio
+ * Initialize Web Audio
  */
 
 /**
@@ -50,32 +50,46 @@ gainNode.connect(audioCtx.destination);
 var AC = new ( window.AudioContext || window.webkitAudioContext)();
 var scriptNodes = {};
 
+var sampleRate = 44100;
+var samples_length = sampleRate; // divide by 2 ???
+var samples = []; //new Float32Array(samples_length);
+
 // Remember, BiquadFilter takes mono input. 
 var channels = 1;
 // Create an empty two second stereo buffer at the sample rate of the AudioContext
-// frameCount and acBuffer are not handled in this file, go to oscillatorstream.js.
-var frameCount    = 88200; // 2 * AC.sampleRate;
-var acBuffer = AC.createBuffer(channels, frameCount, AC.sampleRate);
+// frameCount and asBuffer are not handled in this file, go to oscillatorstream.js.
 
+var asBufferSize = [256, 512, 1024, 2048, 4096, 8192, 16384];
+var kBufferLength = asBufferSize[4];
+
+//var ACBufferSize = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 4];
+//var frameCount    = sampleRate * asBufferSize[3];
+var asBuffer = AC.createBuffer(channels, sampleRate, AC.sampleRate);
+
+// AS UI Variables, these must be wrapped.
 // EG
-var asAmplitude = 0.5;
-var asAttack = 0.1;
-var asDecay = 0.2; // Only decay works, sounds more like a release to me.
+var asAmplitude = 0.1;
+
+var asAttack = 0.5;
+var asDecay = 0.8; // Only decay works, sounds more like a release to me.
 var asSustain = 0.6;
 var asRelease = 0.2;
 
-var egStoptime = 10;
+var egStoptime = 10; // Script running time
 
 var oscTypes = ['sine', 'triangle', 'sawtooth', 'square', 'custom'];
-var asOscType = oscTypes[0];
-var asOscGain;
-var asDetune;
+
+var asOscType = oscTypes[0]; // Make multiple instances :)
+var asOscGain = 0.5;
+var asDetune = 0;
 
 var filterTypes = ['lowpass', 'highpass', 'bandpass', 'peaking', 'notch', 'lowshelf', 'highshelf', 'allpass'];
-var asFilterType = filterTypes[1];
+
+var asFilterType = filterTypes[1]; // Make multiple instances
 var asFilterCutoff = 100;
 var asFilterResonance = 10;
-var asFilterGain = 0.1;
+var asFilterGain = 25;
+
 
 function fastSine(f, it) {
     //var i = AC.currentTime;
@@ -98,60 +112,79 @@ function bufferOscStream(init, freq, output, eg) {
     /**
      * These should be abstracted
      */
-    egStoptime = init + 5; // Script stoptime, don't confuse with EG
+    egStoptime = init + 4; // Script stoptime, don't confuse with EG
     
     var osc = AC.createOscillator();
     osc.frequency.value = freq;
-    osc.type = asOscType;
-    osc.detune.value = asDetune;
+    osc.type            = asOscType;
+    osc.detune.value    = asDetune;
     //osc.setPeriodicWave(PeriodicWave periodicWave); // Read: create/setPeriodicWave()
     //osc attribute EventHandler
-    var oscGain = AC.createGain();
+    
+    var gain = AC.createGain();
+    gain.gain.value = asOscGain || 0.5;
     
     var filter  = AC.createBiquadFilter();
     filter.type = asFilterType;
-    filter.frequency = freq;
-    filter.detune    = asDetune;
+    filter.detune = asDetune;
 
-    oscGain.gain.value      = asOscGain || 0.5;
-    filter.frequency.value  = asFilterCutoff || 0.1;
-    filter.Q.value          = asFilterResonance || 13;
-    filter.gain.value       = asFilterGain || 0.1;
-    //console.log(asFilterGain);
-
-    var gain = scriptWithStartStopTime(osc, output, init, egStoptime, (function () {
+    var SPN = EnvelopeHandler(osc, output, init, egStoptime, (function () {
         
         var amplitude = asAmplitude;
+
+        //var attack = Math.exp(1.6180 / (asAttack * AC.sampleRate)); 
         var decay = Math.exp(- 1.6180 / (asDecay * AC.sampleRate));
+        var sustain = 0.5;
+        //var release = 0.1;
         //console.log(decay); // Try to find the meaning of decay's float values
+        
         return function (event, fromSamp, toSamp) {
 
             var i, inp, out;
             
-            inp = event.inputBuffer.getChannelData(0);
+            inp = event.inputBuffer.getChannelData(0); // This gets the oscillator wave
             out = event.outputBuffer.getChannelData(0);
-            
+
+            /*for (i=0; i < out.length; i++) {
+                inp[i] =  amplitude * noise( inp[i]);
+            }*/
+
+            // Decay
             for (i = fromSamp; i < toSamp; ++i, amplitude *= decay) {
                 
-                //@todo: Let's call some coloring functions from waves.js here
-                out[i] = amplitude * inp[i];
-                //out[i] =  amplitude * mix(amplitude, inp[i], freq);
-                //Completely new wave with this, sounds like a powerful oscillator! But egStoptime is lost.
-                //out[i] = 0.1 * keep(fastSine(freq, i));
+                out[i] = amplitude * inp[i];            
+                //out[i] =  amplitude * noise( inp[i]);       
             }
+
+            
         };
     }()));
-
-    osc.connect(oscGain);
-    oscGain.connect(filter);
-    filter.connect(gain);
     
-    gain.connect(output || AC.destination);
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(SPN);
+    ////gain.connect(SPN);
+    //SPN.connect(output);
 
     osc.start(init);
     osc.stop(egStoptime);
+    /**/
+
+    /*
+    var source = AC.createBufferSource();
+    source.buffer = asBuffer;
+    /**/
+
+    //original gain.connect(output || AC.destination);
+    //osc.start(init);
+    //osc.stop(egStoptime);
+    // osc.onended is callable too
     
-    
+    //filter.frequency.value  = asFilterCutoff || 528; //Hz
+    filter.frequency.value  = Math.pow(2.0, (freq + 30) / 10);
+    filter.Q.value          = asFilterResonance || 13; // Param range unknown
+    filter.gain.value       = asFilterGain || 1;
+    //console.log(asFilterGain);
 
 }
 
@@ -169,17 +202,21 @@ function drop(node) {
     return node;
 }
 
-function scriptWithStartStopTime(input, output, init, egStoptime, handler) {
+function EnvelopeHandler(input, output, init, egStoptime, handler) {
 
     t = Math.max( init, AC.currentTime);
+
     egStoptime = Math.max(egStoptime, AC.currentTime);
     console.assert(egStoptime >= t);
 
-    var kBufferLength = 8192; // samples
-    var prepareAheadTime = 1; // seconds
+    //var kBufferLength = 4096; // samples
+    var prepareAheadTime = 0.1; // seconds
 
     var init_samples = Math.floor(AC.sampleRate * t);
     var egStoptime_samples  = Math.ceil(AC.sampleRate * egStoptime);
+
+    var aeg_a_end;
+
     var finished = false;
 
     function onaudioprocess(event) {
@@ -188,6 +225,7 @@ function scriptWithStartStopTime(input, output, init, egStoptime, handler) {
         // Get realtime, AC.currentTime is 1 / sampleRate
         var t = Math.floor(AC.currentTime * AC.sampleRate);
         var fromSamp = Math.max(0, init_samples - t);
+
         if (fromSamp >= event.outputBuffer.length) {
             return; // Not started yet.
         }
