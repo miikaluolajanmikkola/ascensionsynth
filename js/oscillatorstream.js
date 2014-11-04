@@ -7,13 +7,16 @@ var channels = 1;
 var frameCount    = 8192; //AC.sampleRate;
 var asBuffer = AC.createBuffer(channels, frameCount, AC.sampleRate);
 /**/
+
+/*
 function bufferWaveStream(samples) {
     
     //console.log(samples);
-    for (var channel = 0; channel < channels; channel++) {
+    for (var channel = 0; channel < asBufferChannels; channel++) {
         
         //var nowBuffering = asBuffer.getChannelData(channel);
         var nowBuffering = asBuffer.getChannelData(channel);
+
         for (var i = 0; i < sampleRate; i++) {
             //nowBuffering[i] = bufferRuntimeCallback('fmod');
             //nowBuffering[i] = sin( 2*PI*i );
@@ -33,6 +36,6 @@ function bufferWaveStream(samples) {
     source.start();
 
 }
-
+/**/
 
 
