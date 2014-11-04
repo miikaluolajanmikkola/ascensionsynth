@@ -183,7 +183,7 @@ ul li { list-style-type: none; }
 	width: 350px;
 	position: relative;
 	top: 10px;
-	right: 55px;
+	right: 53px;
 	
 }
 
@@ -193,7 +193,7 @@ ul li { list-style-type: none; }
 
 .wsControls {
 	/*border: 3px dotted #010122;*/
-	
+	width: 369px;
 	height: 81px;
 	margin-bottom: 16px;
 	/*float: left;*/
@@ -201,10 +201,10 @@ ul li { list-style-type: none; }
 	text-align: center;
 }
 
-/* counter-skewed positioning hack */
+/* Lower Envelope counter-skewed positioning hack */
 .skewLeft .wsControls {
-	margin: 12px 0px 0px 173px;
-	width: 100%;
+	margin: 12px 0px 0px 220px;
+	/*width: 100%;*/
 	float: left;
 }
 /**/
@@ -231,7 +231,7 @@ ul li { list-style-type: none; }
 
 #solfeggio_main {
 	
-	width: 1230px;
+	width: 1280px;
 
 	margin: 0; padding: 0;
 
@@ -265,12 +265,15 @@ ul li { list-style-type: none; }
 	z-index: 9;
 	/*width: 816px;  sq(64^2)x2)*9 */
 	/*width: 580px; /* 64*9 */
-	/*background-image: url('../images/geokone_export.png');
-	background-image: url('../images/ds2.png');*/
+	background-image: url('../images/geokone_export.png');
+	/*background-image: url('../images/ds2.png');*/
 	background-position: -28px -28px;
 	opacity: 1;
-	width: 522px;
-	height: 522px;
+	/*width: 522px;
+	height: 522px;*/
+
+	width: 580px;
+	height: 580px;
 
 	margin: 34px 0px 0px 126px;
 	border: 9px solid #010124;
@@ -286,8 +289,14 @@ ul li { list-style-type: none; }
 	border-radius:8px;
 }
 
+#grid #gridWrapper {
+	margin: 0;
+	padding: 0;
+}
+
 .freqButton {
-	background-image: url('../images/geokone_export.png');
+	/*background-image: url('../images/geokone_export.png');
+	background-attachment: fixed;*/
 	/*background-image: url('../images/MajesticE8Rect.png');*/
 	
 	/* GOOD OPTION
@@ -315,26 +324,50 @@ ul li { list-style-type: none; }
 	vertical-align: middle; 
 	margin:1px; 
 	padding:0px;
-
-	
 	z-index: 999;
 }
 
 .freqButton:hover {
 	border: 1px solid rgb(36%, 119%, 163%);
-}
-
-.freqButton span {
-	color: #f1f1f1;
-	display: block;
-	/*position: relative;*/
-	-webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
-    transform: rotate(45deg);
-    -ms-transform: rotate(45deg); /* IE 9 */
-}
-.freqButton span:hover {
 	cursor: pointer;
 }
+
+.freqButton a {
+	color: #f1f1f1;
+	display: block;
+	opacity: 0.7;
+	/*position: relative;*/
+	
+	-webkit-transform: rotate(45deg);
+    transform: rotate(90deg);
+    -ms-transform: rotate(0deg);
+
+}
+.freqButton a:hover {
+	cursor: pointer;
+	text-decoration: none;
+	/*border: 1px solid rgb(36%, 119%, 163%);*/
+}
+
+.freqButton .plucked {
+	background-color: #131334;
+	opacity: 0.1;
+	color: #ffffff;
+	/*border: 1px solid #77222;*/
+	border: 1px solid rgb(36%, 119%, 163%);/**/
+
+	-webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	/*width: inherit; height: inherit;*/
+	display: block;
+	
+}
+.default_grid_freq_view { /* Hide original text span from messing around with relative block position while plucked */ }
 
 .freqButton .holy { 
 	/*font-size: 1.12em; */
@@ -356,28 +389,62 @@ ul li { list-style-type: none; }
 	
 }
 
-.freqButton .plucked {
-	-webkit-border-radius:5px;
-	-moz-border-radius:5px;
-	border-radius:5px;
-	width: inherit; height: inherit;
-	background-color: #131334;
-	opacity: 0;
-	color: #ffffff;
-	/*border: 1px solid #77222;*/
-	border: 1px solid rgb(36%, 119%, 163%);/**/
+
+
+.plucked.root 	{
+
+	background-image: url('../images/btnChakraRoot.png');
+	background-position: -50px -56px;
+	background-color: #f30000;
+	opacity: 0.8;
+	/*color: hsl(0, 100%, 95%); */
 }
-.default_grid_freq_view { /* Hide original text span from messing around with relative block position while plucked */ }
+.plucked.sacral 	{ 
+	background-image: url('../images/btnChakraSacral.png');
+	background-position: -50px -56px;
+	background-color: #ff9900; 
+	/*color: hsl(36, 100%, 100%); */
+}
+.plucked.solar 	{ 
+	background-image: url('../images/btnChakraSolar.png');
+	background-position: -50px -56px;
+	background-color: #e4ff00; 
+	/*color: hsl(66, 100%, 95%); */
+}
+.plucked.heart 	{ 
+	background-image: url('../images/btnChakraHeart.png');
+	background-position: -50px -56px;
+	background-color: #5aad28; 
+	/*color: hsl(97, 77%, 68%); */
+}
+.plucked.throat 	{ 
+	background-image: url('../images/btnChakraThroat.png');
+	background-position: -50px -56px;
+	background-color: #27cfff; 
+	/*color: hsl(193, 85%, 95%); */
+}
+.plucked.third 	{ 
+	background-image: url('../images/btnChakraThird.png');
+	background-position: -50px -56px;
+	background-color: #0f6fff; 
+	/*color: hsl(216, 94%, 95%); */
+}
+.plucked.crown 	{ 
+	background-image: url('../images/btnChakraCrown.png');
+	background-position: -50px -58px;
+	background-color: #9c225d; 
+	/*color: hsl(270, 40%, 20%); */
+}
 
-
-.freqButton.root 	{ background-color: #f30000; color: hsl(0, 100%, 95%); }
-.freqButton.sacral 	{ background-color: #ff9900; color: hsl(36, 100%, 100%); }
-.freqButton.solar 	{ background-color: #e4ff00; color: hsl(66, 100%, 95%); }
-.freqButton.heart 	{ background-color: #5aad28; color: hsl(97, 77%, 68%); }
-.freqButton.throat 	{ background-color: #27cfff; color: hsl(193, 85%, 95%); }
-.freqButton.third 	{ background-color: #0f6fff; color: hsl(216, 94%, 95%); }
-.freqButton.crown 	{ background-color: #9c225d; color: hsl(270, 40%, 20%); }
-
+.plucked.fade0 { opacity: 0.7; }
+.plucked.fade1 { opacity: 0.7; }
+.plucked.fade2 { opacity: 0.6; }
+.plucked.fade3 { opacity: 0.5; }
+.plucked.fade4 { opacity: 0.4; }
+.plucked.fade5 { opacity: 0.3; }
+.plucked.fade6 { opacity: 0.2; }
+.plucked.fade7 { opacity: 0.1; }
+.plucked.fade7 { opacity: 0.1; }
 
 #solfeggio_main #controlArea {
 	
