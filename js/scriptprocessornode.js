@@ -55,16 +55,15 @@ var samples_length = sampleRate; // divide by 2 ???
 var samples = []; //new Float32Array(samples_length);
 
 // Remember, BiquadFilter takes mono input. 
-var channels = 1;
+var asBufferChannels  = 1;
+var spnInputChannels  = 1;
+var spnOutputChannels = 1;
 // Create an empty two second stereo buffer at the sample rate of the AudioContext
-// frameCount and asBuffer are not handled in this file, go to oscillatorstream.js.
-
 var asBufferSize = [256, 512, 1024, 2048, 4096, 8192, 16384];
-var kBufferLength = asBufferSize[4];
-
+var kBufferLength = asBufferSize[5];
 //var ACBufferSize = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 4];
 //var frameCount    = sampleRate * asBufferSize[3];
-var asBuffer = AC.createBuffer(channels, sampleRate, AC.sampleRate);
+var asBuffer = AC.createBuffer(asBufferChannels, sampleRate, AC.sampleRate);
 
 // AS UI Variables, these must be wrapped.
 // EG
@@ -103,15 +102,17 @@ function fastSine(f, it) {
     return i;
 }
 
-function bufferOscStream(init, freq, output, eg) {
-    
+function normalize(a) {
+    if (a > 1) a = 1;
+    if (a < -1) a = -1;
+    return a;
+}
+
+function bufferOscStream(init, freq, output) {
+    //alert('yay');
     init = Math.max(init || 0.0, AC.currentTime);
-    freq = freq || 528.0;
+    freq = freq || 528;
     output = output || AC.destination;
-    
-    /**
-     * These should be abstracted
-     */
     egStoptime = init + 4; // Script stoptime, don't confuse with EG
     
     var osc = AC.createOscillator();
@@ -127,63 +128,57 @@ function bufferOscStream(init, freq, output, eg) {
     var filter  = AC.createBiquadFilter();
     filter.type = asFilterType;
     filter.detune = asDetune;
-
+    filter.frequency.value  = asFilterCutoff || 528;
+    filter.gain.value = asFilterGain;
+    
+    // SPN
     var SPN = EnvelopeHandler(osc, output, init, egStoptime, (function () {
-        
+    
         var amplitude = asAmplitude;
-
         //var attack = Math.exp(1.6180 / (asAttack * AC.sampleRate)); 
         var decay = Math.exp(- 1.6180 / (asDecay * AC.sampleRate));
-        var sustain = 0.5;
-        //var release = 0.1;
+        var sustain = asSustain;
+        var release = asRelease;
         //console.log(decay); // Try to find the meaning of decay's float values
         
         return function (event, fromSamp, toSamp) {
 
             var i, inp, out;
             
-            inp = event.inputBuffer.getChannelData(0); // This gets the oscillator wave
+            inp = event.inputBuffer.getChannelData(0);
             out = event.outputBuffer.getChannelData(0);
+            // Attack
+            /*for (i = init; i < fromSamp; ++i, amplitude *= asAttack) {
 
-            /*for (i=0; i < out.length; i++) {
-                inp[i] =  amplitude * noise( inp[i]);
+                out[i] =  amplitude * inp[i];
             }*/
-
             // Decay
             for (i = fromSamp; i < toSamp; ++i, amplitude *= decay) {
                 
-                out[i] = amplitude * inp[i];            
+                filter.frequency.value = amplitude^2 * asFilterCutoff;
+                
+                out[i] = normalize(amplitude * inp[i]);
                 //out[i] =  amplitude * noise( inp[i]);       
             }
-
-            
         };
     }()));
-    
+
     osc.connect(filter);
     filter.connect(gain);
     gain.connect(SPN);
-    ////gain.connect(SPN);
-    //SPN.connect(output);
 
     osc.start(init);
     osc.stop(egStoptime);
-    /**/
-
-    /*
-    var source = AC.createBufferSource();
-    source.buffer = asBuffer;
-    /**/
-
+    
+    filter.frequency.value  = Math.pow(2.0, (freq + 30) / 10);
+    filter.Q.value          = asFilterResonance || 13; // Param range unknown
+    filter.gain.value       = asFilterGain || 1;
+    
     //original gain.connect(output || AC.destination);
     //osc.start(init);
     //osc.stop(egStoptime);
     // osc.onended is callable too
     
-    //filter.frequency.value  = asFilterCutoff || 528; //Hz
-    filter.frequency.value  = Math.pow(2.0, (freq + 30) / 10);
-    filter.Q.value          = asFilterResonance || 13; // Param range unknown
-    filter.gain.value       = asFilterGain || 1;
     //console.log(asFilterGain);
 
 }
@@ -214,8 +209,6 @@ function EnvelopeHandler(input, output, init, egStoptime, handler) {
 
     var init_samples = Math.floor(AC.sampleRate * t);
     var egStoptime_samples  = Math.ceil(AC.sampleRate * egStoptime);
-
-    var aeg_a_end;
 
     var finished = false;
 
@@ -252,7 +245,7 @@ function EnvelopeHandler(input, output, init, egStoptime, handler) {
 
     if (dt < 0.00 + prepareAheadTime) {
         
-        var node = keep(AC.createScriptProcessor(kBufferLength, channels, channels));
+        var node = keep(AC.createScriptProcessor(kBufferLength, spnInputChannels, spnOutputChannels));
         node.onaudioprocess = onaudioprocess;
 
         // Setup the necessary connections.
@@ -264,7 +257,7 @@ function EnvelopeHandler(input, output, init, egStoptime, handler) {
         // Delay the same above
         setTimeout(function(){
             console.log('out of future');
-            var node = keep(AC.createScriptProcessor(kBufferLength, channels, channels));
+            var node = keep(AC.createScriptProcessor(kBufferLength, spnInputChannels, spnOutputChannels));
             node.onaudioprocess = onaudioprocess;
 
             // Setup the necessary connections.
