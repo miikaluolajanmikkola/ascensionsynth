@@ -37,12 +37,13 @@ var Collection = function(){
 
 }
 
-var wfColl = new Collection(); // Stands for Wave Function Collection {Collection}.count, .headers, .list, .item
+var wfColl = new Collection(); // Wave Function Collection
+
 wfColl.add('Sinewave', 'sinewave');
 wfColl.add('Violin', 'violin');
 wfColl.add('Droplet', 'waterdrop');
-wfColl.add('Techno', 'bell1');
-wfColl.add('Techno 2', 'bell2');
+wfColl.add('Techno', 'fm1');
+wfColl.add('Techno 2', 'fm2');
 //wfColl.add('Supersine', 'supersine');
 wfColl.add('Sacred Harpsicord', 'harpsicord');
 //wfColl.add('Clarinet', 'clarinet');
@@ -65,6 +66,7 @@ function getWaveCollection() {
  * @type {Collection}
  */
 var nodeAudioCallback = new Collection(); // 
+
 nodeAudioCallback.add('fmod', fmod); // x,y 
 nodeAudioCallback.add('sign', sign); // x
 nodeAudioCallback.add('smoothstep', smoothstep); // a, b, x
@@ -233,7 +235,7 @@ var harpsicord = function bass(f) {
 var violin = function violin(f) {
 
   var samples = [];
-  for (var i=0; i < sampleRate ; i++) {
+  for (var i=0; i < sampleRate; i++) {
     var t = i / sampleRate;
     var y = 0;
     var A_total = 0;
@@ -244,11 +246,11 @@ var violin = function violin(f) {
       y += A * sin(f2 * 2 * PI * t);
     }
     samples[i] = y / A_total;
-    samples[i] *= (1 - 0.5 * sin(2 * PI * 6 * t)); // Add a low frequency amplitude modulation
+    //samples[i] *= (1 - 0.5 * sin(2 * PI * 6 * t)); // Add a low frequency amplitude modulation
     samples[i] *= (1 - exp(-t * 3));
 
-    if (samples[i] > 1) samples[i] = 1;
-    else if (samples[i] < -1) samples[i] = -1;
+    //if (samples[i] > 1) samples[i] = 1;
+    //else if (samples[i] < -1) samples[i] = -1;
 
     if (convert255 == true) samples[i] = 128 + Math.round( 127 * samples[i]);
   }
@@ -300,7 +302,7 @@ var waterdrop = function waterdrop(f1) {
   return samples;
 }
 
-var bell1 = function bell1(f) {
+var fm1 = function fm1(f) {
 
   var samples = [];
   for (var i=0; i < sampleRate ; i++) {
@@ -318,7 +320,7 @@ var bell1 = function bell1(f) {
   return samples;
 }
 
-var bell2 = function bell2(f) {
+var fm2 = function fm2(f) {
 
   var samples = [];
   for (var i=0; i < sampleRate ; i++) {
