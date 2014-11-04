@@ -4,9 +4,6 @@
  * Version 0.5
  * 
  * References, inspiration
- * Stephen M. Phillips http://www.smphillips.8m.com/article-31.html
- * Marshall Lefferts http://cosmometry.net/basics-of-the-music-system
- * Curtis MacDonald / http://www.curtismacdonald.com/lo-shu-or-solfeggio-tonality-templates/
  *
  * Miika Kuisma / miikakuisma.com
  * Sakari Lehtonen / geokone.net
@@ -14,6 +11,11 @@
  * Karlheinz Stockhausen
  * Nassim Haramein
  * Mooji
+ * God
+ * 
+ * Stephen M. Phillips http://www.smphillips.8m.com/article-31.html
+ * Marshall Lefferts http://cosmometry.net/basics-of-the-music-system
+ * Curtis MacDonald / http://www.curtismacdonald.com/lo-shu-or-solfeggio-tonality-templates/
  * 
  * Written by Miika Luolajan-Mikkola, 2014
  * 
@@ -21,17 +23,14 @@
 
 //var preloadAudio = false;
 var gridMode = 'grid'; // 'solfeggios' || 'grid' = for the sake of development convenience
-
 var soloMouseRunning = false;
-
-var pluckedMax = 6;
-var interval_length = 1000; 
-
-var seqStepLengthDefault = 8;
+var pluckedMax = 8;
+var interval_length = 363.636363; // Triplets at 55 bpm, makes 21 bar cycle maybe? Test.
 
 var  PI = Math.PI,
      pi = Math.PI,
-    phi = 1.61803398874989484820458683436563
+    phi = 1.61803398874989484820458683436563,
+   cbrt = Math.cbrt, // cube root of a number
     abs = Math.abs,
     sin = Math.sin,
    asin = Math.asin,
@@ -63,15 +62,8 @@ var oddFrequencies = [7.83, 63.05, 136.1];
 
 var solfeggios = dg1.concat(dg2, dg3, dg4, oddFrequencies);
 
-var holytree = [];
-var floweroflife = [];
-
 var grid = []; // Store all freqs here first
-var rowLength = 9;
-var gridStart = 1;
-var gridEnd   = rowLength;
 var waveCanvas = new Object(); // Contains wave data (floats or 255) assigned to freq cells { waveCanvas[freq] = samples }
-
 
 var base = 9; //When subtraction of Z returns a negative number, these are ugly hacks
 var zi = 9; //Z index, growing by two on every x+yn
@@ -80,32 +72,45 @@ var freq;
 var holyclass;
 
 var plucked = [];
-var pluckedColl = new Collection(); //Size grows until pluckedMax reached
+var pluckedColl = new Collection();
 var learned = new Collection();
+var pluckedOpacityOffset = 0.1; // must match with CSS
 
-var waveCollection = getWaveCollection(); // new Collection(); // {Collection}.count, .headers, .list, .item
-var keyboardCollection = getKeyboardCollection(); // new Collection();
+var waveCollection = getWaveCollection();
+var keyboardCollection = getKeyboardCollection();
+
 var temperingCollection = getTemperingCollection();
+var currentTempering = 'Lo Shu Natural';
 
-//var keyboardMode;
 var sequenceRunning = false;
+
+
+var chakras     = [111, 333, 528, 444, 639, 741, 666]; // This goes to sequence container
+var chakraName = ['root', 'sacral', 'solar', 'heart', 'throat', 'third', 'crown'];
+
+var hypnotree = [111, 333, 444, 528, 639, 258, 369, 666];
+var treeoflifevary = [111, 333, 444, 528, 639, 741, 258, 369, 471, 666];
+var treeoflife 	   = [111, 333, 528, 258, 369, 471, 444,  639, 741, 258, 369, 471, 666];
+// sum 3348, 8-div 418.5, sqr 57,86190456595773
+var floweroflife = [];
+
 
 var sequenceCollection = new Collection();
 //It will be best to create sequence structures from the UI / keyboard combo.
-sequenceCollection.add('Random', [111]);
+sequenceCollection.add('Tree of Life', treeoflife);
+sequenceCollection.add('Hypno Tree', hypnotree);
+sequenceCollection.add('Chakras', chakras);
 sequenceCollection.add('RandomOvertones', solfeggios);
+sequenceCollection.add('Random', [666]);
 sequenceCollection.add('StraightUp', [111, 222, 333, 444, 555, 666, 777, 888, 999]);
 
-var currentSequences = [];
+var currentSequence;
 var csi = 0; //Current Sequence Index
 
+//var keyboardMode; // Y no have keyboardMode here?
 var currentKeyboard;
 
 var webSynth = null;
-
-
-
-
 
 
 /**
@@ -153,15 +158,104 @@ function createWaveGrid(waveform) {
  */
 function playTone(freq) {
 
-	// WAVE PROCESS BUFFER
+	// WAVE generation and Audio Context buffering
 	if ( waveCanvas[freq] ) {
 		//Now we have samples to use SPN with our JS methods in waves.js
 		//console.log('buffering samples');
-		bufferWaveStream( waveCanvas[freq]);
+		//bufferWaveStream( waveCanvas[freq]);
+
+		//console.log(samples);
+	    for (var channel = 0; channel < asBufferChannels; channel++) {
+	        
+	        //var nowBuffering = asBuffer.getChannelData(channel);
+	        var nowBuffering = asBuffer.getChannelData(channel);
+	        
+	        for (var i = 0; i < sampleRate; i++) {
+	            //nowBuffering[i] = bufferRuntimeCallback('fmod');
+	            //nowBuffering[i] = sin( 2*PI*i );
+	            nowBuffering[i] = waveCanvas[freq][i];
+	        }
+	    }
+
+	    var gain = AC.createGain();
+	    gain.gain.value = 0.5;
+
+	    var source = AC.createBufferSource();
+	    source.buffer = asBuffer;
+
+	    source.connect(gain);
+	    gain.connect(AC.destination);
+
+	    source.start();
+	    
 	}
-	// SCRIPT PROCESSOR NODE
+	// OSCILLATOR and Script Processor Node
 	else {
-		bufferOscStream(0.9, freq); 
+		bufferOscStream(0.1, freq);
+		/*init = Math.max(0.1, AC.currentTime);
+	    egStoptime = init + 4; // Script stoptime, don't confuse with EG
+	    
+	    var osc = AC.createOscillator();
+	    osc.frequency.value = freq;
+	    osc.type            = asOscType;
+	    osc.detune.value    = asDetune;
+	    //osc.setPeriodicWave(PeriodicWave periodicWave); // Read: create/setPeriodicWave()
+	    //osc attribute EventHandler
+	    
+	    var gain = AC.createGain();
+	    gain.gain.value = asOscGain || 0.5;
+	    
+	    var filter  = AC.createBiquadFilter();
+	    filter.type = asFilterType;
+	    filter.detune = asDetune;
+
+	    // SPN
+	    var SPN = EnvelopeHandler(init, handler, (function () { // orig params input, output, init, egStoptime, handler
+        
+	        var amplitude = asAmplitude;
+	        //var attack = Math.exp(1.6180 / (asAttack * AC.sampleRate)); 
+	        var decay = Math.exp(- 1.6180 / (asDecay * AC.sampleRate));
+	        var sustain = asSustain;
+	        var release = asRelease;
+	        //console.log(decay); // Try to find the meaning of decay's float values
+	        
+	        return function (event, fromSamp, toSamp) {
+
+	            var i, inp, out;
+	            
+	            inp = event.inputBuffer.getChannelData(0);
+	            out = event.outputBuffer.getChannelData(0);
+	            // Attack
+	            for (i = init; i < fromSamp; ++i, amplitude *= asAttack) {
+
+	                out[i] =  amplitude * inp[i];
+	            }
+	            // Decay
+	            for (i = fromSamp; i < toSamp; ++i, amplitude *= decay) {
+	                
+	                filter.frequency.value = amplitude^2 * asFilterCutoff;
+	                
+	                out[i] = amplitude * inp[i];
+	                if (out[i] > 1) out[i] = 1;
+	                if (out[i] < -1) out[i] = -1;          
+	                //out[i] =  amplitude * noise( inp[i]);       
+	            }
+	        };
+	    }()));
+
+	    osc.connect(filter);
+	    filter.connect(gain);
+	    gain.connect(SPN);
+	    ////gain.connect(SPN);
+	    //SPN.connect(AC.destination);
+
+	    osc.start(init);
+	    osc.stop(egStoptime);
+	    //filter.frequency.value  = asFilterCutoff || 528; //Hz
+	    filter.frequency.value  = Math.pow(2.0, (freq + 30) / 10);
+	    filter.Q.value          = asFilterResonance || 13; // Param range unknown
+	    filter.gain.value       = asFilterGain || 1;
+		/**/
 	}
 
 	if ( webSynth != null) {
@@ -179,8 +273,8 @@ function playTone(freq) {
  * When multiple different tones are playing, it has to know the whole data structure
  * 
  */
-function stopTone() {
-
+function stopTone(freq) {
+	
 	//webSynth.stop();
 }
 
@@ -191,7 +285,7 @@ function stopTone() {
  * 
  * @param return String html
  */
-function createSacredGridLayout() {
+function createSacredGridLayout(tempering) {
 
 	var x, y, z;
 	var rgb;
@@ -200,42 +294,80 @@ function createSacredGridLayout() {
 	//var rgbz;
 	var ex = 0; //RGB color emphasis value
 
-	var html = '';
+	var html = '<div id="gridWrapper">';
 
-	
+	for ( y = base; y >= 0; y-- ) {
+		for ( x = 0; x <= base; x++ ) {	
 
-	for ( y = 9; y > 0; y-- ) {
-		for ( x = 1; x <= 9; x++ ) {	
-
-			var alpha, cos, tan;
-
+			//var alpha, cos, tan;
 			//z = cos(x);
 			z = zi - x;
 			if ( z < 1 )
 				z = base - (abs(z));
 			
-			//console.log(z);
-			
+			if (x&y&z==0) {
+				html += '<div id="silence" class="freqButton"><div class="plucked"></div><span class="default_grid_freq_view noselect">Silence</span></div>';
+				continue;
+			}
+
+			if (x / y / z == 1) {
+				var rgbOct = "" + x + y + z;
+				rgb = ' ' + (pow(z, 2) + rgbOct[0] + rgbOct[1] + rgbOct[2]); // * 2
+				//console.log(rgb);
+				rgb = 'style="background-color: #CC0133" ';
+			}
+			else {
+				//rgb = 'style="background-color: #'+ y + ex + z + z + x + ex +'" ';
+				rgb = 'style="background-color: #'+ z + z + x + x + y + y +'" ';
+			}
+
 			if (x == 0) x = '';
-			if (y == 0) y = '';
-			//if (z == 0) z = '';
-			
-			if ( 1 == x / y / z )
-				ex = x + 2; //color emphasis
-			else
-				ex = 0;
-			//rgb = 'style="background-color: #'+ y + ex + z + z + x + ex +'" ';
-			rgb = 'style="background-color: #'+ y + y + z + z + x + ex +'" ';
+			if (y == 10) y = '';
+			if (z == 10) z = 1;
 
 			freq = "" + x + y + z;
 
-			if (freq.length < 2) 
-				console.log(freq + ' weirdo');
+			// Insert Tempering algorithm
+			switch (tempering) {
+				case 'Lo Shu Natural':
+					tprOctaveRange = [1, 999]; // || 1000?
+					tprToneSteps   = 100;
+					// var tprRelativeRatioVector
+					freq = freq;
+				break;
+				case 'Cuberoot':
+					// Does this lead us to Stockhausen Studie II with 100Hz bottom?
+					var cubeRoot = round(cbrt(freq) * 100); 
+					freq = cubeRoot;
+					//console.log('Cuberoot of '+ freq + ': ' + cubeRoot);
+				break;
+				case '12-TET':
+					tprOctaveRange = [1, 111]; // || 100?
+					tprToneSteps   = 12;
+					// z = octave, y = steps - Problem ahead with y
+				break;
+			}
+			//temperingCollection.item( tempering);
+			//if (freq.length == 0) 
+				//console.log(freq + ' - mishandled freq');
+
 			if (freq.length > 0) 
 				grid.push(freq);
 			
-			holyclass = (solfeggios.indexOf(eval(freq)) == -1) ? '' : 'holy';	
-			html += '<div id="'+ freq +'" '+ rgb +' class="freqButton '+ holyclass +'"><div class="plucked"><span class="noselect">'+ freq +'</span></div><span class="default_grid_freq_view noselect">'+ freq +'</span></div>';
+			holyclass = (solfeggios.indexOf(eval(freq)) == -1) ? '' : 'omniHoly'; // implement to css
+
+			var chakraIndex = chakras.indexOf(eval(freq));
+			var chakraClass = '';
+			if (chakraIndex > -1)
+				chakraClass += chakraName[chakraIndex];	
+			/**
+			 * Construct Grid Button
+			 */
+			html += '<div '+ rgb +' class="freqButton '+ holyclass +'">\
+						<a id="'+ freq +'" '+ rgb +' class="noselect ' + chakraClass + '">\
+							<span class="plucked">'+ freq +'</span>\
+						</a>\
+					</div>';
 
 			if ( x == 9 ) {
 				zi = zi - 2;
@@ -249,10 +381,14 @@ function createSacredGridLayout() {
 	html += '<div id="bonus">';
 		for (i = 0; i < oddFrequencies.length; i++) {
 			//rgb = 'style="background-color: #' + x + x + y + y + z + z + '" ';
-			html += '<div id="'+ oddFrequencies[i] +'" class="freqButton holy"><div class="plucked"><span class="noselect">'+ oddFrequencies[i] +'</span></div><span class="default_grid_freq_view class="noselect"">'+ oddFrequencies[i] +'</span></div>';
+			html += '<div class="freqButton holy">\
+						<a id="'+ oddFrequencies[i] +'" class="noselect">\
+							<span class="plucked">'+ oddFrequencies[i] +'</span>\
+						</a>\
+					</div>';
 			grid.push(oddFrequencies[i]);
 		}
-	html += '</div>';
+	html += '</div></div>';
 
 	return html;
 }
@@ -287,10 +423,12 @@ function prepareTemperingSelector() {
 	var tprList = temperingCollection.list();
 
 	for (i = 0; i < tprList.length; i++) {
-	    if (tprList[i] == 'Geometric Default')
-	    	selected = 'selected';
+	    if (tprList[i] == 'Lo Shu Natural')
+	    	selected = '';
 	    else
 	    	selected = '';
+	
+	    // Value could contain function name if tempering becomes abstracted. Now it's part of grid layout creation.
 		markup += '<option '+ selected +' value="'+ tprList[i] +'">'+ tprList[i] +'</option>';
 	}
 	markup += '</select>';
@@ -301,7 +439,7 @@ function prepareTemperingSelector() {
 function prepareWaveSelector() {
 
 	var active = '';
-	var markup = '';
+	var markup = '<label for="waveSelector">Wave</label>';
 	var headers = waveCollection.list();
 	for (i = 0; i < headers.length; i++) {
 		if (headers[i] == 'Sinewave')
@@ -318,10 +456,10 @@ function prepareSeqSelector() {
 	
 	var selected = '';
 	var markup = '<label for="sequenceSelector">Pattern</label>\
-				  <select multiple id="sequenceSelector">';
+				  <select id="sequenceSelector">';
 	var seqList = sequenceCollection.list();
 	for (i = 0; i < seqList.length; i++) {				
-	    if (seqList[i] == 'Random')
+	    if (seqList[i] == 'Hypno Tree')
 	    	selected = 'selected';
 	    else
 	    	selected = '';
@@ -334,25 +472,30 @@ function prepareSeqSelector() {
 
 function prepareSettings() {
 
+	// Buffer
+	var selected = '';
 	var markup = '<label for="bufferSize">Buffer</label>\
-				  <select id="bufferSize">\
-				  	<option value="256">6ms</option>\
-				  	<option value="512">11ms</option>\
-				  	<option value="1024">23ms</option>\
-				  	<option value="2048">46ms</option>\
-				  	<option selected value="4096">92ms</option>\
-				  	<option value="8192">185ms</option>\
-				  	<option value="16384">371ms</option>\
-				  </select>\
-				  <br />';
+				  <select id="bufferSize">';
+	for (i = 0; i < asBufferSize.length; i++) {				
+	    if (asBufferSize[i] == '4096')
+	    	selected = 'selected';
+	    else
+	    	selected = '';
+		markup += '<option '+ selected +' value="'+ asBufferSize[i] +'">'+ asBufferSize[i] +'</option>';
+	}
+	markup += '</select>';
 
 	return markup;
 }
 
+
 function freqButtonEventHandle(freqButton, soloMouse) {
 
+		//freqButton is now anchor
+
 		var pluckedElem = $(freqButton).find('.plucked');
-		var ptv = $(pluckedElem).text();
+		//console.log(pluckedElem); //span class="plucked", text() = freq
+		var ptv = $(freqButton).attr('id'); // anchor's id
 
 		playTone(ptv);
 
@@ -360,116 +503,165 @@ function freqButtonEventHandle(freqButton, soloMouse) {
 			soloMouseRunning = true;
 
 		var rgb = ptv;
-		var opa = 0.7;
-		$(pluckedElem).show().css('opacity', opa);
-		$(freqButton).find('.default_grid_freq_view').hide();
+		var opa =  0.8;
+		var chakraOpa = 0.6;
+
+		$(pluckedElem).css('opacity', opa);//.parent('div').css('border-color', 'rgb(36%, 119%, 163%)');
+		//$(freqButton).find('.default_grid_freq_view').hide();
 		
-		plucked.push(freqButton);
 		
+		
+		console.log(plucked);
+
 		//Trails
-		for (i = 0; i <= plucked.length; i++) {
-			var felem = $(plucked[plucked.length - i]).find('.plucked');
-			//console.log($(felem).text());
-			if (felem != pluckedElem)
-				$(felem).css('opacity', opa-i/30);
-			else
-				$(pluckedElem).css('opacity', opa);
-
-			rgb[0] +=  $(felem).text()[0];
-			rgb[1] +=  $(felem).text()[1];
-			rgb[2] +=  $(felem).text()[2];
+		for (i = 0; i < plucked.length; i++) {
+			var felem = $(plucked[plucked.length - i]);//.find('plucked');
+			//console.log(felem);
+			if ($(pluckedElem).text() != $(felem).text()) {
+				if ((chakras.indexOf(eval($(felem).text())) > -1 ))
+					$(felem).css('opacity', opa-i/25);
+				else
+					$(felem).css('opacity', opa-i/25);
+			}
+			else {
+				console.log('prevent repeated pluck fade' + $(felem).text());
+				$(felem).css('opacity', opa);
+			}	
+			//rgb[0] +=  $(felem).attr('id')[0];
+			//rgb[1] +=  $(felem).attr('id')[1];
+			//rgb[2] +=  $(felem).attr('id')[2];
 		}
-
 		if (plucked.length == pluckedMax) {
 			var fadePlucked = $(plucked[plucked.length - pluckedMax]);
 			if ($(fadePlucked).text() != ptv) {
-				$(fadePlucked).find('.plucked').hide();
+				$(fadePlucked).css('opacity', pluckedOpacityOffset);
 				$(fadePlucked).find('.default_grid_freq_view').show();
 				plucked.shift();
 			}
 		}
-
+		plucked.push(freqButton);
 		$('#lumisonos').css('background-color', '#' + rgb[1] + rgb[1] + rgb[2] + rgb[2] + rgb[0] + rgb[0]);
 		//$('body').css('background', 'radial-gradient(ellipse at center, rgba(65,74,91,1) 0%,rgba('+rgb[1]+rgb[1]+', '+rgb[2]+rgb[2]+', '+ rgb[0] + rgb[0] +',1) 100%)');
 		//$('#grid').css('border-color', '#0301' + rgb[1] + rgb[1]);
 		
 }
 
+function prepareAscension(tempering) {
 
+	currentTempering = tempering | currentTempering;
 
-
-$(document).ready(function () {
-	
-	$('#grid').append( createSacredGridLayout() );
+	$('#grid').append( createSacredGridLayout( currentTempering) );
 	$('#kbSelector').append( prepareKbSelector() );
 	$('#temperingSelector').append( prepareTemperingSelector() );
 	$('#waveSelector').append( prepareWaveSelector() );
 	$('#seqSelector').append( prepareSeqSelector() );
 	$('#settings').append( prepareSettings() );
-	$('.plucked').hide();
 	//setTimeout(function(){
 	$('.wsBtnWrap').each(function(){
 		var w = parseInt( $(this).find('input').attr('data-width'), 10);
 		var h = parseInt( $(this).find('input').attr('data-height'), 10);
 		$(this).css('width', w + 6 ).css('height', h + 6 );
-		//.find('input').attr('background-color', '#ff0000');
-		//doesn't affect canvas drawn color 
+		$(this).find('input').attr('data-bgcolor', '#ff0000'); //Fyi doesn't affect canvas drawn color 
+		//data-bgcolor="#8080aa" data-fgcolor="#22cc22" data-inputcolor="#d5d5d5"
 	});
 	//}, 1000);
 	$('.knob').knob();
 	//createWaveGrid('sinewave');
-
-	// Warning! This may shutdown audio node completely, has been improved in playTone handling but not tested yet.
+	// Warning! Websynth may shutdown audio node completely, has been improved in playTone handling but not tested.
 	//webSynth = new WebSynth();
-
-	//currentSequences
+	currentSequence = $('#sequenceSelector option:selected').val();
 	//Must be array to handle multiple seqs at once. 
 	currentKeyboard = $('#keyboardSelector option:selected').val();
+}
+
+function refreshDelegates() {
+
+	$('.freqButton').delegate('a','mousedown', function() {
+		freqButtonEventHandle(this, true);
+		return false;
+	});
+
+	$('.freqButton').delegate('a','hover', function() {
+
+		if (soloMouseRunning == true) {
+			freqButtonEventHandle(this);
+		}
+		return false;
+	});
+	
+	$('#grid').delegate('.freqButton', 'mouseup', function() {
+
+		soloMouseRunning = false;
+		//stopTone();
+		return false;
+	});
+}
+
+
+$(document).ready(function () {
+	
+	prepareAscension( currentTempering);
+	refreshDelegates();
 
 	/**
 	 * 	Events of Expression
 	 */
-
 	//$('#seq_start_stop').trigger('click');
-	
-	$('.freqButton').on('mousedown', function() {
-		
-		freqButtonEventHandle(this, true);
-	});
-	
-	$('#grid').on('mouseup', function() {
 
-		soloMouseRunning = false;
-		// implement stopTone();
+	$('.wsBtnWrap').bind('mousewheel DOMMouseScroll', function(event){
+		changeKnob(this);
 	});
-	
-	
-	$('.freqButton').on('hover', function() {
-		
-		if (soloMouseRunning === true) {
-			freqButtonEventHandle(this);
-		}	
+
+	$('.wsBtnWrap').on('mouseup', function() {
+		changeKnob(this);
+	})
+
+	$('.wsBtnWrap').on('mouseover', function() {
+
+		$(this).find('span').css('color', '#22cc22'); 
 	});
-	
+
+	$('.wsBtnWrap').on('mouseout', function() {
+
+		$(this).find('span').css('color', '#616181'); 
+	});
+
 	/**
 	 * Keyboard Player
 	 * 
 	 * @todo: Keyboard  Improve keyboard event validation.
 	 */
+	var keyDown = [];
 	$(document).on('keydown', function(event) {
 
 		//console.log(event.which);
 		if (!event) event = window.event;
 		if (keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which] ] != -1) {
-			
-			var elem = $("#"+keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which]  ]);
-			//console.log(elem);
-			$(elem).trigger('mousedown')
-				   .trigger('mouseup');
+			var elem = $("#"+keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which] ]);
+			//console.log($(elem).children());
+			if(keyDown.indexOf($(elem).attr('id')) > -1 ) {
+				return;
+			}
+			else {
+				$(elem).trigger('mousedown');
+				keyDown.push($(elem).attr('id'));
+			}
+			//console.log(elem);	
 			//$("#"+keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which]  ]).trigger('mousedown');	
 		}
 	});
 
+	$(document).on('keyup', function(event) {
+		
+		var elem = $("#"+keyboardCollection.item(currentKeyboard)[ kbEventNumber[event.which] ]);
+		var kdindex = keyDown.indexOf(eval($(elem).attr('id')));
+		keyDown.splice(kdindex, 1);
+		$(elem).trigger('mouseup'); 
+	});
+
+	/**
+	 * Control area events
+	 */
 	$('#waveSelector .ctrl_button').on('click', function() {
 
 		createWaveGrid(this.id);
@@ -499,6 +691,22 @@ $(document).ready(function () {
 		currentKeyboard = this.value;
 	});
 
+	/**
+	 * Testing new grid for different temperaments.
+	 * @return {[type]} [description]
+	 */
+	$('#temperingSelector').on('change', function(){
+
+		currentTempering = $(this).find('option:selected').attr('value');
+		$('#bonus').remove();
+		$('#gridWrapper').remove();
+		
+		var newAsLayout = createSacredGridLayout(currentTempering);
+		$('#grid').append(newAsLayout);
+		refreshDelegates();
+	});
+
+
 	$('#bufferSize').on('change', function(){
 		
 		kBufferLength = this.value;
@@ -508,13 +716,11 @@ $(document).ready(function () {
 		
 		var pl = plucked.length + 1;
 		for (var i = 1; i <= pl; i++) {
-			console.log(plucked[i]);
+			//console.log(plucked[i]);
 			playTone( $(plucked[i]).attr('id') ) ;
 			//$(plucked[i]).trigger('click');
 		}
 	});
-
-
 
 	/****** Synth Knob Events ******/
 
@@ -557,42 +763,7 @@ $(document).ready(function () {
 		}
 	};
 
-	$('.wsBtnWrap').bind('mousewheel DOMMouseScroll', function(event){
-	    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-	        changeKnob(this);
-	    }
-	    else {
-	        changeKnob(this);
-	    }
-	});
-
-	$('.wsBtnWrap').on('mouseup', function() {
-
-		changeKnob(this);
 	
-	})
-
-	$('.wsBtnWrap').on('mouseover', function() {
-
-		$(this).find('span').css('color', '#22cc22'); 
-	});
-
-	$('.wsBtnWrap').on('mouseover', function() {
-
-		$(this).find('span').css('color', '#22cc22'); 
-	});
-
-	$('.wsBtnWrap').on('mouseout', function() {
-
-		$(this).find('span').css('color', '#616181'); 
-	});
-
-/*
-	$('.wsBtnWrap').on('mouseout', function(){
-
-		console.log($(this).find('span').text());
-	});
-*/
 	/*
 	$('.knob #glideTime').on('change', function() {
 		
@@ -776,10 +947,6 @@ $(document).ready(function () {
 	 * Begin algorithmical play
 	 */
 	
-	function randomGridElement(gridLength) {
-
-	}
-
 	var run = setInterval(function() {
 
 		if (sequenceRunning == true) {
@@ -801,18 +968,19 @@ $(document).ready(function () {
 				var elem = "#" + solfeggios[holyIndex];
 			}
 			
-			var mod = csi % 2;
-			if (mod == 1) {
+			//var mod = ;
+			if (csi % 2 == 1) {
 				//playTone(63.05);
 			}
-			
-			freqButtonEventHandle( elem, false);		
-			//playTone(7.83);
-			$('#'+7.83+' .plucked').show();
-			
 
+			freqButtonEventHandle( "a#"+sequenceCollection.item(currentSequence)[ csi ], false);
+
+			//freqButtonEventHandle( '#' + treeoflife[csi], false);
+			//freqButtonEventHandle( elem, false);		
+			//playTone(7.83); // in case we don't want to see seq events on the Grid
+		
 			csi++;
-			if (csi == seqStepLengthDefault)
+			if (csi == sequenceCollection.item(currentSequence).length)
 				csi = 0;
 			
 		}
